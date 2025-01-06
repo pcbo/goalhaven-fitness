@@ -30,9 +30,15 @@ export const GoalCard = ({ title, current, target, unit }: GoalCardProps) => {
   };
 
   return (
-    <div className="space-y-2">
-      <Progress value={calculateProgress()} className="h-2" />
-      <p className="text-sm text-muted-foreground">{getRemainingText()}</p>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium">Current: {current}{unit}</span>
+        <span className="text-sm font-medium">Goal: {target}{unit}</span>
+      </div>
+      <div className="space-y-2">
+        <Progress value={calculateProgress()} className="h-2 w-full" />
+        <p className="text-sm text-muted-foreground">{getRemainingText()}</p>
+      </div>
     </div>
   );
 };
