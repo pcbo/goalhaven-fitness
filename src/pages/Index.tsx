@@ -3,6 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WeightChart } from "@/components/WeightChart";
 import { GoalCard } from "@/components/GoalCard";
 import { WeightInput } from "@/components/WeightInput";
+import { WorkoutInput } from "@/components/WorkoutInput";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+
+interface WorkoutData {
+  pushups: number;
+  situps: number;
+  plankSeconds: number;
+}
 
 const Index = () => {
   const [weightData, setWeightData] = useState([
@@ -11,10 +21,35 @@ const Index = () => {
     { date: "2024-01-15", weight: 73.8 },
     { date: "2024-01-22", weight: 73.2 },
   ]);
+  const [weightGoal, setWeightGoal] = useState(70);
+  const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [workouts, setWorkouts] = useState<WorkoutData[]>([]);
+  const { toast } = useToast();
 
   const handleWeightSubmit = (weight: number) => {
     const today = new Date().toISOString().split("T")[0];
     setWeightData([...weightData, { date: today, weight }]);
+  };
+
+  const handleWorkoutSubmit = (workout: WorkoutData) => {
+    setWorkouts([...workouts, workout]);
+  };
+
+  const handleGoalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (weightGoal <= 0) {
+      toast({
+        title: "Invalid goal",
+        description: "Please enter a valid weight goal",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsEditingGoal(false);
+    toast({
+      title: "Goal updated",
+      description: "Your weight goal has been updated successfully",
+    });
   };
 
   return (
@@ -37,15 +72,39 @@ const Index = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Weight Goal</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                Weight Goal
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingGoal(!isEditingGoal)}
+                >
+                  {isEditingGoal ? "Cancel" : "Edit"}
+                </Button>
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <GoalCard
-                title="Progress to Goal"
-                current={weightData[weightData.length - 1]?.weight || 0}
-                target={70}
-                unit="kg"
-              />
+              {isEditingGoal ? (
+                <form onSubmit={handleGoalSubmit} className="space-y-2">
+                  <Input
+                    type="number"
+                    value={weightGoal}
+                    onChange={(e) => setWeightGoal(Number(e.target.value))}
+                    min="0"
+                    step="0.1"
+                  />
+                  <Button type="submit" className="w-full">
+                    Save Goal
+                  </Button>
+                </form>
+              ) : (
+                <GoalCard
+                  title="Progress to Goal"
+                  current={weightData[weightData.length - 1]?.weight || 0}
+                  target={weightGoal}
+                  unit="kg"
+                />
+              )}
             </CardContent>
           </Card>
         </div>
@@ -59,11 +118,24 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <GoalCard title="Weekly Workouts" current={3} target={5} unit="sessions" />
-          <GoalCard title="Daily Steps" current={8000} target={10000} unit="steps" />
-          <GoalCard title="Water Intake" current={1.5} target={2.5} unit="L" />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Daily Workout</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <WorkoutInput onWorkoutSubmit={handleWorkoutSubmit} />
+            {workouts.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold mb-2">Latest Workout</h3>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>Push-ups: {workouts[workouts.length - 1].pushups}</div>
+                  <div>Sit-ups: {workouts[workouts.length - 1].situps}</div>
+                  <div>Plank: {workouts[workouts.length - 1].plankSeconds}s</div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
