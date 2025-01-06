@@ -1,5 +1,4 @@
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface GoalCardProps {
   title: string;
@@ -9,19 +8,31 @@ interface GoalCardProps {
 }
 
 export const GoalCard = ({ title, current, target, unit }: GoalCardProps) => {
-  const progress = Math.min((current / target) * 100, 100);
-  
+  const calculateProgress = () => {
+    // If we're trying to lose weight (current > target)
+    if (current > target) {
+      const totalWeightToLose = current - target;
+      const weightLost = 0; // Since we're above target, we haven't lost any weight yet
+      return Math.max(0, (weightLost / totalWeightToLose) * 100);
+    }
+    // If we're trying to gain weight (current < target)
+    else {
+      const totalWeightToGain = target - current;
+      const weightGained = current - target + totalWeightToGain;
+      return Math.min(100, (weightGained / totalWeightToGain) * 100);
+    }
+  };
+
+  const getRemainingText = () => {
+    const difference = Math.abs(current - target);
+    if (current === target) return "Goal reached!";
+    return `${difference.toFixed(1)}${unit} to ${current > target ? "lose" : "gain"}`;
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <span className="text-sm text-muted-foreground">
-          {current}/{target} {unit}
-        </span>
-      </CardHeader>
-      <CardContent>
-        <Progress value={progress} className="h-2" />
-      </CardContent>
-    </Card>
+    <div className="space-y-2">
+      <Progress value={calculateProgress()} className="h-2" />
+      <p className="text-sm text-muted-foreground">{getRemainingText()}</p>
+    </div>
   );
 };
