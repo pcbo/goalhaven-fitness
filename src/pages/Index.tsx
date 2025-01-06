@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { WeightChart } from "@/components/WeightChart";
 import { GoalCard } from "@/components/GoalCard";
 import { WeightInput } from "@/components/WeightInput";
 import { WorkoutInput } from "@/components/WorkoutInput";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 
 interface WorkoutData {
   pushups: number;
@@ -51,6 +51,16 @@ const Index = () => {
       description: "Your weight goal has been updated successfully",
     });
   };
+
+  const getComparisonIcon = (current: number, previous: number) => {
+    if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
+    if (current > previous) return <ArrowUp className="h-4 w-4 text-green-500" />;
+    if (current < previous) return <ArrowDown className="h-4 w-4 text-red-500" />;
+    return <Minus className="h-4 w-4 text-gray-500" />;
+  };
+
+  const getCurrentWorkout = () => workouts[workouts.length - 1];
+  const getPreviousWorkout = () => workouts[workouts.length - 2];
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -111,26 +121,59 @@ const Index = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Weight Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <WeightChart data={weightData} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
             <CardTitle>Daily Workout</CardTitle>
           </CardHeader>
           <CardContent>
             <WorkoutInput onWorkoutSubmit={handleWorkoutSubmit} />
             {workouts.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold mb-2">Latest Workout</h3>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>Push-ups: {workouts[workouts.length - 1].pushups}</div>
-                  <div>Sit-ups: {workouts[workouts.length - 1].situps}</div>
-                  <div>Plank: {workouts[workouts.length - 1].plankSeconds}s</div>
+              <div className="mt-4 space-y-4">
+                <h3 className="text-lg font-semibold">Latest Workout</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="rounded-lg border p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Push-ups</span>
+                      {getComparisonIcon(
+                        getCurrentWorkout()?.pushups || 0,
+                        getPreviousWorkout()?.pushups
+                      )}
+                    </div>
+                    <p className="mt-1 text-2xl font-bold">{getCurrentWorkout()?.pushups || 0}</p>
+                    {getPreviousWorkout() && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Previous: {getPreviousWorkout()?.pushups}
+                      </p>
+                    )}
+                  </div>
+                  <div className="rounded-lg border p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Sit-ups</span>
+                      {getComparisonIcon(
+                        getCurrentWorkout()?.situps || 0,
+                        getPreviousWorkout()?.situps
+                      )}
+                    </div>
+                    <p className="mt-1 text-2xl font-bold">{getCurrentWorkout()?.situps || 0}</p>
+                    {getPreviousWorkout() && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Previous: {getPreviousWorkout()?.situps}
+                      </p>
+                    )}
+                  </div>
+                  <div className="rounded-lg border p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Plank</span>
+                      {getComparisonIcon(
+                        getCurrentWorkout()?.plankSeconds || 0,
+                        getPreviousWorkout()?.plankSeconds
+                      )}
+                    </div>
+                    <p className="mt-1 text-2xl font-bold">{getCurrentWorkout()?.plankSeconds || 0}s</p>
+                    {getPreviousWorkout() && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Previous: {getPreviousWorkout()?.plankSeconds}s
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
