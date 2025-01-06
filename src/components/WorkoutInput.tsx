@@ -32,7 +32,12 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
       });
       return;
     }
-    onWorkoutSubmit(workout);
+    // Convert minutes to seconds before submitting
+    const workoutData = {
+      ...workout,
+      plankSeconds: workout.plankSeconds * 60,
+    };
+    onWorkoutSubmit(workoutData);
     setWorkout({ pushups: 0, situps: 0, plankSeconds: 0 });
     toast({
       title: "Workout recorded",
@@ -75,7 +80,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
         </div>
         <div>
           <label htmlFor="plank" className="text-sm font-medium">
-            Plank (seconds)
+            Plank (minutes)
           </label>
           <Input
             id="plank"
@@ -88,6 +93,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
               })
             }
             min="0"
+            step="0.5"
             className="mt-1"
           />
         </div>

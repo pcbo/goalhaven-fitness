@@ -62,6 +62,11 @@ const Index = () => {
   const getCurrentWorkout = () => workouts[workouts.length - 1];
   const getPreviousWorkout = () => workouts[workouts.length - 2];
 
+  const formatPlankTime = (seconds: number) => {
+    const minutes = seconds / 60;
+    return `${minutes.toFixed(1)}m`;
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-4xl space-y-8">
@@ -167,10 +172,12 @@ const Index = () => {
                         getPreviousWorkout()?.plankSeconds
                       )}
                     </div>
-                    <p className="mt-1 text-2xl font-bold">{getCurrentWorkout()?.plankSeconds || 0}s</p>
+                    <p className="mt-1 text-2xl font-bold">
+                      {formatPlankTime(getCurrentWorkout()?.plankSeconds || 0)}
+                    </p>
                     {getPreviousWorkout() && (
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Previous: {getPreviousWorkout()?.plankSeconds}s
+                        Previous: {formatPlankTime(getPreviousWorkout()?.plankSeconds)}
                       </p>
                     )}
                   </div>
