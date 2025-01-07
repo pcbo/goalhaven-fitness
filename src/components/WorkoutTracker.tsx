@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutInput } from "@/components/WorkoutInput";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
@@ -24,8 +23,6 @@ interface WorkoutTrackerProps {
 }
 
 export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrackerProps) => {
-  const [workouts] = useState<WorkoutData[]>(initialWorkouts);
-
   const getComparisonIcon = (current: number, previous: number) => {
     if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
     if (current > previous) return <ArrowUp className="h-4 w-4 text-green-500" />;
@@ -33,8 +30,8 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
 
-  const getCurrentWorkout = () => workouts[workouts.length - 1];
-  const getPreviousWorkout = () => workouts[workouts.length - 2];
+  const getCurrentWorkout = () => initialWorkouts[initialWorkouts.length - 1];
+  const getPreviousWorkout = () => initialWorkouts[initialWorkouts.length - 2];
 
   const formatPlankTime = (seconds: number) => {
     const minutes = seconds / 60;
@@ -57,7 +54,7 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
       </CardHeader>
       <CardContent>
         <WorkoutInput onWorkoutSubmit={onWorkoutSubmit} />
-        {workouts.length > 0 && (
+        {initialWorkouts.length > 0 && (
           <div className="mt-4 space-y-4">
             <h3 className="text-lg font-semibold">Latest Workout</h3>
             <div className="grid grid-cols-3 gap-4">
@@ -121,7 +118,7 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {workouts.slice(-5).reverse().map((workout, index) => (
+                  {initialWorkouts.slice(-5).reverse().map((workout, index) => (
                     <TableRow key={index}>
                       <TableCell>{formatDate(workout.date)}</TableCell>
                       <TableCell>{workout.pushups}</TableCell>

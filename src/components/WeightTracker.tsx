@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WeightInput } from "@/components/WeightInput";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
@@ -22,8 +21,6 @@ interface WeightTrackerProps {
 }
 
 export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrackerProps) => {
-  const [weightData] = useState<WeightEntry[]>(initialWeightData);
-
   const getComparisonIcon = (current: number, previous: number) => {
     if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
     if (current > previous) return <ArrowUp className="h-4 w-4 text-red-500" />;
@@ -49,22 +46,22 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
         <div className="flex items-center justify-between">
           <div>
             <div className="text-3xl font-bold text-primary">
-              {weightData[weightData.length - 1]?.weight || 0} kg
+              {initialWeightData[initialWeightData.length - 1]?.weight || 0} kg
             </div>
-            {weightData.length > 1 && (
+            {initialWeightData.length > 1 && (
               <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
                 {getComparisonIcon(
-                  weightData[weightData.length - 1]?.weight,
-                  weightData[weightData.length - 2]?.weight
+                  initialWeightData[initialWeightData.length - 1]?.weight,
+                  initialWeightData[initialWeightData.length - 2]?.weight
                 )}
-                vs previous: {weightData[weightData.length - 2]?.weight} kg
+                vs previous: {initialWeightData[initialWeightData.length - 2]?.weight} kg
               </div>
             )}
           </div>
           <WeightInput onWeightSubmit={onWeightSubmit} />
         </div>
         
-        {weightData.length > 0 && (
+        {initialWeightData.length > 0 && (
           <div className="rounded-lg border">
             <Table>
               <TableHeader>
@@ -74,7 +71,7 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {weightData.slice(-5).reverse().map((entry, index) => (
+                {initialWeightData.slice(-5).reverse().map((entry, index) => (
                   <TableRow key={index}>
                     <TableCell>{formatDate(entry.date)}</TableCell>
                     <TableCell>{entry.weight}</TableCell>
