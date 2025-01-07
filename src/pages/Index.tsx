@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WeightInput } from "@/components/WeightInput";
 import { WorkoutInput } from "@/components/WorkoutInput";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import {
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/table";
 
 interface WorkoutData {
+  date: string;
   pushups: number;
   situps: number;
   plankSeconds: number;
@@ -27,7 +27,12 @@ const Index = () => {
     { date: "2024-01-15", weight: 73.8 },
     { date: "2024-01-22", weight: 73.2 },
   ]);
-  const [workouts, setWorkouts] = useState<WorkoutData[]>([]);
+  const [workouts, setWorkouts] = useState<WorkoutData[]>([
+    { date: "2024-01-01", pushups: 20, situps: 30, plankSeconds: 60 },
+    { date: "2024-01-08", pushups: 22, situps: 32, plankSeconds: 70 },
+    { date: "2024-01-15", pushups: 25, situps: 35, plankSeconds: 80 },
+    { date: "2024-01-22", pushups: 27, situps: 37, plankSeconds: 90 },
+  ]);
   const { toast } = useToast();
 
   const handleWeightSubmit = (weight: number) => {
@@ -35,8 +40,9 @@ const Index = () => {
     setWeightData([...weightData, { date: today, weight }]);
   };
 
-  const handleWorkoutSubmit = (workout: WorkoutData) => {
-    setWorkouts([...workouts, workout]);
+  const handleWorkoutSubmit = (workout: Omit<WorkoutData, "date">) => {
+    const today = new Date().toISOString().split("T")[0];
+    setWorkouts([...workouts, { ...workout, date: today }]);
   };
 
   const getComparisonIcon = (current: number, previous: number) => {
@@ -55,7 +61,12 @@ const Index = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   };
 
   return (
@@ -173,6 +184,7 @@ const Index = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead>Date</TableHead>
                           <TableHead>Push-ups</TableHead>
                           <TableHead>Sit-ups</TableHead>
                           <TableHead>Plank</TableHead>
@@ -181,6 +193,7 @@ const Index = () => {
                       <TableBody>
                         {workouts.slice(-5).reverse().map((workout, index) => (
                           <TableRow key={index}>
+                            <TableCell>{formatDate(workout.date)}</TableCell>
                             <TableCell>{workout.pushups}</TableCell>
                             <TableCell>{workout.situps}</TableCell>
                             <TableCell>{formatPlankTime(workout.plankSeconds)}</TableCell>
