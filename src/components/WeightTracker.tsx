@@ -33,7 +33,9 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -46,7 +48,7 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
         <div className="flex items-center justify-between">
           <div>
             <div className="text-3xl font-bold text-primary">
-              {initialWeightData[initialWeightData.length - 1]?.weight || 0} kg
+              {initialWeightData[initialWeightData.length - 1]?.weight.toFixed(2) || "0.00"} kg
             </div>
             {initialWeightData.length > 1 && (
               <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
@@ -54,7 +56,7 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   initialWeightData[initialWeightData.length - 1]?.weight,
                   initialWeightData[initialWeightData.length - 2]?.weight
                 )}
-                vs previous: {initialWeightData[initialWeightData.length - 2]?.weight} kg
+                vs previous: {initialWeightData[initialWeightData.length - 2]?.weight.toFixed(2)} kg
               </div>
             )}
           </div>
@@ -74,7 +76,7 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                 {initialWeightData.slice(-5).reverse().map((entry, index) => (
                   <TableRow key={index}>
                     <TableCell>{formatDate(entry.date)}</TableCell>
-                    <TableCell>{entry.weight}</TableCell>
+                    <TableCell>{entry.weight.toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
