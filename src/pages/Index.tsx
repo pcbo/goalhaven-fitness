@@ -12,27 +12,27 @@ interface WorkoutData {
 
 const Index = () => {
   const [weightData, setWeightData] = useState([
-    { date: "2024-01-01", weight: 75 },
-    { date: "2024-01-08", weight: 74.5 },
-    { date: "2024-01-15", weight: 73.8 },
-    { date: "2024-01-22", weight: 73.2 },
+    { date: "2024-01-01T10:30:00", weight: 75 },
+    { date: "2024-01-08T11:15:00", weight: 74.5 },
+    { date: "2024-01-15T09:45:00", weight: 73.8 },
+    { date: "2024-01-22T14:20:00", weight: 73.2 },
   ]);
   const [workouts, setWorkouts] = useState<WorkoutData[]>([
-    { date: "2024-01-01", pushups: 20, situps: 30, plankSeconds: 60 },
-    { date: "2024-01-08", pushups: 22, situps: 32, plankSeconds: 70 },
-    { date: "2024-01-15", pushups: 25, situps: 35, plankSeconds: 80 },
-    { date: "2024-01-22", pushups: 27, situps: 37, plankSeconds: 90 },
+    { date: "2024-01-01T08:00:00", pushups: 20, situps: 30, plankSeconds: 60 },
+    { date: "2024-01-08T09:30:00", pushups: 22, situps: 32, plankSeconds: 70 },
+    { date: "2024-01-15T11:15:00", pushups: 25, situps: 35, plankSeconds: 80 },
+    { date: "2024-01-22T15:45:00", pushups: 27, situps: 37, plankSeconds: 90 },
   ]);
   const { toast } = useToast();
 
   const handleWeightSubmit = (weight: number) => {
-    const today = new Date().toISOString().split("T")[0];
-    setWeightData([...weightData, { date: today, weight }]);
+    const now = new Date();
+    setWeightData([...weightData, { date: now.toISOString(), weight }]);
   };
 
   const handleWorkoutSubmit = (workout: Omit<WorkoutData, "date">) => {
-    const today = new Date().toISOString().split("T")[0];
-    setWorkouts([...workouts, { ...workout, date: today }]);
+    const now = new Date();
+    setWorkouts([...workouts, { ...workout, date: now.toISOString() }]);
   };
 
   return (
