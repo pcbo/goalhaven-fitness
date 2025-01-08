@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WeightTracker } from "@/components/WeightTracker";
 import { WorkoutTracker } from "@/components/WorkoutTracker";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WorkoutData {
   date: string;
@@ -11,28 +12,98 @@ interface WorkoutData {
 }
 
 const Index = () => {
-  const [weightData, setWeightData] = useState([
-    { date: "2024-01-01T10:30:00", weight: 75 },
-    { date: "2024-01-08T11:15:00", weight: 74.5 },
-    { date: "2024-01-15T09:45:00", weight: 73.8 },
-    { date: "2024-01-22T14:20:00", weight: 73.2 },
-  ]);
-  const [workouts, setWorkouts] = useState<WorkoutData[]>([
-    { date: "2024-01-01T08:00:00", pushups: 20, situps: 30, plankSeconds: 60 },
-    { date: "2024-01-08T09:30:00", pushups: 22, situps: 32, plankSeconds: 70 },
-    { date: "2024-01-15T11:15:00", pushups: 25, situps: 35, plankSeconds: 80 },
-    { date: "2024-01-22T15:45:00", pushups: 27, situps: 37, plankSeconds: 90 },
-  ]);
+  const [weightData, setWeightData] = useState([]);
+  const [workouts, setWorkouts] = useState<WorkoutData[]>([]);
   const { toast } = useToast();
 
-  const handleWeightSubmit = (weight: number) => {
-    const now = new Date();
-    setWeightData([...weightData, { date: now.toISOString(), weight }]);
+  useEffect(() => {
+    fetchWeights();
+    fetchWorkouts();
+  }, []);
+
+  const fetchWeights = async () => {
+    const { data, error } = await supabase
+      .from('weights')
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching weights:', error);
+      toast({
+        title: "Error fetching weights",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setWeightData(data || []);
   };
 
-  const handleWorkoutSubmit = (workout: Omit<WorkoutData, "date">) => {
-    const now = new Date();
-    setWorkouts([...workouts, { ...workout, date: now.toISOString() }]);
+  const fetchWorkouts = async () => {
+    const { data, error } = await supabase
+      .from('workouts')
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching workouts:', error);
+      toast({
+        title: "Error fetching workouts",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const formattedWorkouts = (data || []).map(workout => ({
+      date: workout.date,
+      pushups: workout.pushups,
+      situps: workout.situps,
+      plankSeconds: workout.plank_seconds,
+    }));
+    
+    setWorkouts(formattedWorkouts);
+  };
+
+  const handleWeightSubmit = async (weight: number) => {
+    const { error } = await supabase
+      .from('weights')
+      .insert([{ weight }]);
+    
+    if (error) {
+      console.error('Error inserting weight:', error);
+      toast({
+        title: "Error saving weight",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    fetchWeights();
+  };
+
+  const handleWorkoutSubmit = async (workout: Omit<WorkoutData, "date">) => {
+    const { error } = await supabase
+      .from('workouts')
+      .insert([{
+        pushups: workout.pushups,
+        situps: workout.situps,
+        plank_seconds: workout.plankSeconds,
+      }]);
+    
+    if (error) {
+      console.error('Error inserting workout:', error);
+      toast({
+        title: "Error saving workout",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    fetchWorkouts();
   };
 
   return (
