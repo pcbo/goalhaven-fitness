@@ -1,32 +1,53 @@
 import { useState, useEffect } from "react";
 import { WeightTracker } from "@/components/WeightTracker";
 import { WorkoutTracker } from "@/components/WorkoutTracker";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-interface WorkoutData {
-  date: string;
-  pushups: number;
-  situps: number;
-  plankSeconds: number;
-}
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [weightData, setWeightData] = useState([]);
-  const [workouts, setWorkouts] = useState<WorkoutData[]>([]);
+  const [workouts, setWorkouts] = useState([]);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchWeights();
     fetchWorkouts();
+
+    // Set up real-time subscriptions
+    const weightsChannel = supabase
+      .channel('weights-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'weights' },
+        () => {
+          fetchWeights();
+        }
+      )
+      .subscribe();
+
+    const workoutsChannel = supabase
+      .channel('workouts-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'workouts' },
+        () => {
+          fetchWorkouts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(weightsChannel);
+      supabase.removeChannel(workoutsChannel);
+    };
   }, []);
 
   const fetchWeights = async () => {
     const { data, error } = await supabase
       .from('weights')
       .select('*')
-      .order('date', { ascending: false });
-    
+      .order('date', { ascending: true });
+
     if (error) {
       console.error('Error fetching weights:', error);
       toast({
@@ -36,16 +57,16 @@ const Index = () => {
       });
       return;
     }
-    
-    setWeightData(data || []);
+
+    setWeightData(data);
   };
 
   const fetchWorkouts = async () => {
     const { data, error } = await supabase
       .from('workouts')
       .select('*')
-      .order('date', { ascending: false });
-    
+      .order('date', { ascending: true });
+
     if (error) {
       console.error('Error fetching workouts:', error);
       toast({
@@ -55,14 +76,14 @@ const Index = () => {
       });
       return;
     }
-    
-    const formattedWorkouts = (data || []).map(workout => ({
+
+    const formattedWorkouts = data.map(workout => ({
       date: workout.date,
       pushups: workout.pushups,
       situps: workout.situps,
       plankSeconds: workout.plank_seconds,
     }));
-    
+
     setWorkouts(formattedWorkouts);
   };
 
@@ -70,7 +91,7 @@ const Index = () => {
     const { error } = await supabase
       .from('weights')
       .insert([{ weight }]);
-    
+
     if (error) {
       console.error('Error inserting weight:', error);
       toast({
@@ -78,13 +99,14 @@ const Index = () => {
         description: error.message,
         variant: "destructive",
       });
-      return;
     }
-    
-    fetchWeights();
   };
 
-  const handleWorkoutSubmit = async (workout: Omit<WorkoutData, "date">) => {
+  const handleWorkoutSubmit = async (workout: {
+    pushups: number;
+    situps: number;
+    plankSeconds: number;
+  }) => {
     const { error } = await supabase
       .from('workouts')
       .insert([{
@@ -92,7 +114,7 @@ const Index = () => {
         situps: workout.situps,
         plank_seconds: workout.plankSeconds,
       }]);
-    
+
     if (error) {
       console.error('Error inserting workout:', error);
       toast({
@@ -100,17 +122,13 @@ const Index = () => {
         description: error.message,
         variant: "destructive",
       });
-      return;
     }
-    
-    fetchWorkouts();
   };
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-4xl space-y-8">
         <h1 className="text-4xl font-bold text-primary">Fitness Tracker</h1>
-        
         <div className="grid gap-6">
           <WeightTracker 
             initialWeightData={weightData} 
