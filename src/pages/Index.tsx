@@ -165,6 +165,17 @@ const Index = () => {
   };
 
   const handleStartFasting = async () => {
+    // Check if there's already an active session
+    const currentSession = fastingSessions[fastingSessions.length - 1];
+    if (currentSession && !currentSession.end_time) {
+      toast({
+        title: "Error starting fast",
+        description: "You already have an active fasting session",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from('fasting_sessions')
       .insert([{
@@ -178,7 +189,11 @@ const Index = () => {
         description: error.message,
         variant: "destructive",
       });
+      return;
     }
+
+    setIsCurrentlyFasting(true);
+    await fetchFastingSessions(); // Refresh the data
   };
 
   const handleEndFasting = async () => {
