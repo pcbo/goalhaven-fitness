@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
 import { WeightTracker } from "@/components/WeightTracker";
 import { WorkoutTracker } from "@/components/WorkoutTracker";
+import { FastingTracker } from "@/components/FastingTracker";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [weightData, setWeightData] = useState([]);
   const [workouts, setWorkouts] = useState([]);
+  const [fastingSessions, setFastingSessions] = useState([]);
+  const [isCurrentlyFasting, setIsCurrentlyFasting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchWeights();
     fetchWorkouts();
+    fetchFastingSessions();
 
     // Set up real-time subscriptions
     const weightsChannel = supabase
@@ -36,9 +40,21 @@ const Index = () => {
       )
       .subscribe();
 
+    const fastingChannel = supabase
+      .channel('fasting-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'fasting_sessions' },
+        () => {
+          fetchFastingSessions();
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(weightsChannel);
       supabase.removeChannel(workoutsChannel);
+      supabase.removeChannel(fastingChannel);
     };
   }, []);
 
@@ -87,6 +103,28 @@ const Index = () => {
     setWorkouts(formattedWorkouts);
   };
 
+  const fetchFastingSessions = async () => {
+    const { data, error } = await supabase
+      .from('fasting_sessions')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching fasting sessions:', error);
+      toast({
+        title: "Error fetching fasting sessions",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFastingSessions(data);
+    // Check if there's an ongoing session
+    const lastSession = data[data.length - 1];
+    setIsCurrentlyFasting(lastSession && !lastSession.end_time);
+  };
+
   const handleWeightSubmit = async (weight: number) => {
     const { error } = await supabase
       .from('weights')
@@ -125,11 +163,60 @@ const Index = () => {
     }
   };
 
+  const handleStartFasting = async () => {
+    const { error } = await supabase
+      .from('fasting_sessions')
+      .insert([{
+        start_time: new Date().toISOString(),
+      }]);
+
+    if (error) {
+      console.error('Error starting fasting session:', error);
+      toast({
+        title: "Error starting fasting session",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEndFasting = async () => {
+    const currentSession = fastingSessions[fastingSessions.length - 1];
+    if (!currentSession) return;
+
+    const endTime = new Date();
+    const startTime = new Date(currentSession.start_time);
+    const durationMinutes = differenceInMinutes(endTime, startTime);
+
+    const { error } = await supabase
+      .from('fasting_sessions')
+      .update({
+        end_time: endTime.toISOString(),
+        duration_minutes: durationMinutes,
+      })
+      .eq('id', currentSession.id);
+
+    if (error) {
+      console.error('Error ending fasting session:', error);
+      toast({
+        title: "Error ending fasting session",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-4xl space-y-8">
         <h1 className="text-4xl font-bold text-primary">Fitness Tracker</h1>
         <div className="grid gap-6">
+          <FastingTracker 
+            initialSessions={fastingSessions}
+            onStartFasting={handleStartFasting}
+            onEndFasting={handleEndFasting}
+            isCurrentlyFasting={isCurrentlyFasting}
+          />
           <WeightTracker 
             initialWeightData={weightData} 
             onWeightSubmit={handleWeightSubmit} 

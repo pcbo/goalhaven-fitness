@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      fasting_sessions: {
+        Row: {
+          date: string
+          duration_minutes: number | null
+          end_time: string | null
+          id: string
+          start_time: string
+        }
+        Insert: {
+          date?: string
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          start_time: string
+        }
+        Update: {
+          date?: string
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          start_time?: string
+        }
+        Relationships: []
+      }
       weights: {
         Row: {
           date: string
