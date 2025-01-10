@@ -128,5 +128,5 @@ export const FastingTracker = ({
         )}
       </CardContent>
     </Card>
-  </div>
+  );
 };
