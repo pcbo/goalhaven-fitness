@@ -210,7 +210,8 @@ const Index = () => {
 
     const endTime = new Date();
     const startTime = new Date(currentSession.start_time);
-    const durationMinutes = differenceInMinutes(endTime, startTime);
+    // Calculate duration including the full minute
+    const durationMinutes = Math.ceil(differenceInMinutes(endTime, startTime));
 
     const { error } = await supabase
       .from('fasting_sessions')
