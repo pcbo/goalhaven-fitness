@@ -183,7 +183,15 @@ const Index = () => {
 
   const handleEndFasting = async () => {
     const currentSession = fastingSessions[fastingSessions.length - 1];
-    if (!currentSession) return;
+    
+    if (!currentSession || currentSession.end_time) {
+      toast({
+        title: "Error ending fast",
+        description: "No active fasting session found",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const endTime = new Date();
     const startTime = new Date(currentSession.start_time);
@@ -204,7 +212,11 @@ const Index = () => {
         description: error.message,
         variant: "destructive",
       });
+      return;
     }
+
+    setIsCurrentlyFasting(false);
+    await fetchFastingSessions(); // Refresh the data
   };
 
   return (
