@@ -4,6 +4,7 @@ import { WorkoutTracker } from "@/components/WorkoutTracker";
 import { FastingTracker } from "@/components/FastingTracker";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { differenceInMinutes } from "date-fns";
 
 const Index = () => {
   const [weightData, setWeightData] = useState([]);
