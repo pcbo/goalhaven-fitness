@@ -55,7 +55,7 @@ export const FastingTracker = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Fasting Tracker</CardTitle>
+        <CardTitle>Fasting</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">

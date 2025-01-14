@@ -42,7 +42,7 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Weight Tracking</CardTitle>
+        <CardTitle>Weight</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">

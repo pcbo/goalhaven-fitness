@@ -52,7 +52,7 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily Workout</CardTitle>
+        <CardTitle>Workouts</CardTitle>
       </CardHeader>
       <CardContent>
         <WorkoutInput onWorkoutSubmit={onWorkoutSubmit} />
