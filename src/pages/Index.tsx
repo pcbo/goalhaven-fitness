@@ -238,7 +238,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-4xl space-y-8">
-        <h1 className="text-4xl font-bold text-primary">Welcome to your Goal Haven</h1>
+        <h1 className="text-4xl font-bold text-primary">Welcome to Goal Haven</h1>
         <div className="grid gap-6">
           <FastingTracker 
             initialSessions={fastingSessions}
