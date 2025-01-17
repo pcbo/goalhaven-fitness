@@ -13,8 +13,8 @@ import {
 interface WeightEntry {
   date: string;
   weight: number;
-  fat_percentage?: number;
-  muscle_percentage?: number;
+  fat_percentage?: number | null;
+  muscle_percentage?: number | null;
 }
 
 interface WeightTrackerProps {
@@ -23,8 +23,8 @@ interface WeightTrackerProps {
 }
 
 export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrackerProps) => {
-  const getComparisonIcon = (current: number, previous: number) => {
-    if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
+  const getComparisonIcon = (current: number | null | undefined, previous: number | null | undefined) => {
+    if (!current || !previous) return <Minus className="h-4 w-4 text-gray-500" />;
     if (current > previous) return <ArrowUp className="h-4 w-4 text-red-500" />;
     if (current < previous) return <ArrowDown className="h-4 w-4 text-green-500" />;
     return <Minus className="h-4 w-4 text-gray-500" />;
@@ -41,6 +41,9 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
     });
   };
 
+  const latestEntry = initialWeightData[initialWeightData.length - 1];
+  const previousEntry = initialWeightData[initialWeightData.length - 2];
+
   return (
     <Card>
       <CardHeader>
@@ -51,42 +54,33 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
           <div className="space-y-2">
             <div>
               <div className="text-3xl font-bold text-primary">
-                {initialWeightData[initialWeightData.length - 1]?.weight.toFixed(2) || "0.00"} kg
+                {latestEntry?.weight.toFixed(2) || "0.00"} kg
               </div>
-              {initialWeightData.length > 1 && (
+              {previousEntry && (
                 <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                  {getComparisonIcon(
-                    initialWeightData[initialWeightData.length - 1]?.weight,
-                    initialWeightData[initialWeightData.length - 2]?.weight
-                  )}
-                  vs previous: {initialWeightData[initialWeightData.length - 2]?.weight.toFixed(2)} kg
+                  {getComparisonIcon(latestEntry?.weight, previousEntry?.weight)}
+                  vs previous: {previousEntry?.weight.toFixed(2)} kg
                 </div>
               )}
             </div>
-            {initialWeightData[initialWeightData.length - 1]?.fat_percentage !== undefined && (
+            {latestEntry?.fat_percentage !== null && latestEntry?.fat_percentage !== undefined && (
               <div className="text-sm text-muted-foreground">
-                Fat: {initialWeightData[initialWeightData.length - 1]?.fat_percentage.toFixed(1)}%
-                {initialWeightData.length > 1 && initialWeightData[initialWeightData.length - 2]?.fat_percentage !== undefined && (
+                Fat: {latestEntry.fat_percentage.toFixed(1)}%
+                {previousEntry && previousEntry.fat_percentage !== null && previousEntry.fat_percentage !== undefined && (
                   <span className="ml-1 flex items-center gap-1">
-                    {getComparisonIcon(
-                      initialWeightData[initialWeightData.length - 1]?.fat_percentage!,
-                      initialWeightData[initialWeightData.length - 2]?.fat_percentage!
-                    )}
-                    vs previous: {initialWeightData[initialWeightData.length - 2]?.fat_percentage.toFixed(1)}%
+                    {getComparisonIcon(latestEntry.fat_percentage, previousEntry.fat_percentage)}
+                    vs previous: {previousEntry.fat_percentage.toFixed(1)}%
                   </span>
                 )}
               </div>
             )}
-            {initialWeightData[initialWeightData.length - 1]?.muscle_percentage !== undefined && (
+            {latestEntry?.muscle_percentage !== null && latestEntry?.muscle_percentage !== undefined && (
               <div className="text-sm text-muted-foreground">
-                Muscle: {initialWeightData[initialWeightData.length - 1]?.muscle_percentage.toFixed(1)}%
-                {initialWeightData.length > 1 && initialWeightData[initialWeightData.length - 2]?.muscle_percentage !== undefined && (
+                Muscle: {latestEntry.muscle_percentage.toFixed(1)}%
+                {previousEntry && previousEntry.muscle_percentage !== null && previousEntry.muscle_percentage !== undefined && (
                   <span className="ml-1 flex items-center gap-1">
-                    {getComparisonIcon(
-                      initialWeightData[initialWeightData.length - 1]?.muscle_percentage!,
-                      initialWeightData[initialWeightData.length - 2]?.muscle_percentage!
-                    )}
-                    vs previous: {initialWeightData[initialWeightData.length - 2]?.muscle_percentage.toFixed(1)}%
+                    {getComparisonIcon(latestEntry.muscle_percentage, previousEntry.muscle_percentage)}
+                    vs previous: {previousEntry.muscle_percentage.toFixed(1)}%
                   </span>
                 )}
               </div>
