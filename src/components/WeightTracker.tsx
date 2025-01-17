@@ -13,11 +13,13 @@ import {
 interface WeightEntry {
   date: string;
   weight: number;
+  fat_percentage?: number;
+  muscle_percentage?: number;
 }
 
 interface WeightTrackerProps {
   initialWeightData: WeightEntry[];
-  onWeightSubmit: (weight: number) => void;
+  onWeightSubmit: (weight: number, fatPercentage?: number, musclePercentage?: number) => void;
 }
 
 export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrackerProps) => {
@@ -46,17 +48,47 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <div className="text-3xl font-bold text-primary">
-              {initialWeightData[initialWeightData.length - 1]?.weight.toFixed(2) || "0.00"} kg
+          <div className="space-y-2">
+            <div>
+              <div className="text-3xl font-bold text-primary">
+                {initialWeightData[initialWeightData.length - 1]?.weight.toFixed(2) || "0.00"} kg
+              </div>
+              {initialWeightData.length > 1 && (
+                <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                  {getComparisonIcon(
+                    initialWeightData[initialWeightData.length - 1]?.weight,
+                    initialWeightData[initialWeightData.length - 2]?.weight
+                  )}
+                  vs previous: {initialWeightData[initialWeightData.length - 2]?.weight.toFixed(2)} kg
+                </div>
+              )}
             </div>
-            {initialWeightData.length > 1 && (
-              <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                {getComparisonIcon(
-                  initialWeightData[initialWeightData.length - 1]?.weight,
-                  initialWeightData[initialWeightData.length - 2]?.weight
+            {initialWeightData[initialWeightData.length - 1]?.fat_percentage !== undefined && (
+              <div className="text-sm text-muted-foreground">
+                Fat: {initialWeightData[initialWeightData.length - 1]?.fat_percentage.toFixed(1)}%
+                {initialWeightData.length > 1 && initialWeightData[initialWeightData.length - 2]?.fat_percentage !== undefined && (
+                  <span className="ml-1 flex items-center gap-1">
+                    {getComparisonIcon(
+                      initialWeightData[initialWeightData.length - 1]?.fat_percentage!,
+                      initialWeightData[initialWeightData.length - 2]?.fat_percentage!
+                    )}
+                    vs previous: {initialWeightData[initialWeightData.length - 2]?.fat_percentage.toFixed(1)}%
+                  </span>
                 )}
-                vs previous: {initialWeightData[initialWeightData.length - 2]?.weight.toFixed(2)} kg
+              </div>
+            )}
+            {initialWeightData[initialWeightData.length - 1]?.muscle_percentage !== undefined && (
+              <div className="text-sm text-muted-foreground">
+                Muscle: {initialWeightData[initialWeightData.length - 1]?.muscle_percentage.toFixed(1)}%
+                {initialWeightData.length > 1 && initialWeightData[initialWeightData.length - 2]?.muscle_percentage !== undefined && (
+                  <span className="ml-1 flex items-center gap-1">
+                    {getComparisonIcon(
+                      initialWeightData[initialWeightData.length - 1]?.muscle_percentage!,
+                      initialWeightData[initialWeightData.length - 2]?.muscle_percentage!
+                    )}
+                    vs previous: {initialWeightData[initialWeightData.length - 2]?.muscle_percentage.toFixed(1)}%
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -70,6 +102,8 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Weight (kg)</TableHead>
+                  <TableHead>Fat %</TableHead>
+                  <TableHead>Muscle %</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -77,6 +111,8 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   <TableRow key={index}>
                     <TableCell>{formatDate(entry.date)}</TableCell>
                     <TableCell>{entry.weight.toFixed(2)}</TableCell>
+                    <TableCell>{entry.fat_percentage?.toFixed(1) || '-'}</TableCell>
+                    <TableCell>{entry.muscle_percentage?.toFixed(1) || '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

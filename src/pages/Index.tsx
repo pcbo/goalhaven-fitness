@@ -126,10 +126,14 @@ const Index = () => {
     setIsCurrentlyFasting(lastSession && !lastSession.end_time);
   };
 
-  const handleWeightSubmit = async (weight: number) => {
+  const handleWeightSubmit = async (weight: number, fatPercentage?: number, musclePercentage?: number) => {
     const { error } = await supabase
       .from('weights')
-      .insert([{ weight }]);
+      .insert([{ 
+        weight,
+        fat_percentage: fatPercentage,
+        muscle_percentage: musclePercentage
+      }]);
 
     if (error) {
       console.error('Error inserting weight:', error);

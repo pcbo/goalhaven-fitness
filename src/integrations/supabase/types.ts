@@ -36,17 +36,23 @@ export type Database = {
       weights: {
         Row: {
           date: string
+          fat_percentage: number | null
           id: string
+          muscle_percentage: number | null
           weight: number
         }
         Insert: {
           date?: string
+          fat_percentage?: number | null
           id?: string
+          muscle_percentage?: number | null
           weight: number
         }
         Update: {
           date?: string
+          fat_percentage?: number | null
           id?: string
+          muscle_percentage?: number | null
           weight?: number
         }
         Relationships: []
