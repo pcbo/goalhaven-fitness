@@ -57,41 +57,54 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="flex gap-2">
-        <Input
-          type="number"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          placeholder="Weight (kg)"
-          step="0.1"
-          min="0"
-          className="w-32"
-        />
-        <Button type="submit">Add</Button>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-3">
+        <div>
+          <label htmlFor="weight" className="text-sm font-medium">
+            Weight (kg)
+          </label>
+          <Input
+            id="weight"
+            type="number"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            step="0.1"
+            min="0"
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label htmlFor="fat" className="text-sm font-medium">
+            Fat %
+          </label>
+          <Input
+            id="fat"
+            type="number"
+            value={fatPercentage}
+            onChange={(e) => setFatPercentage(e.target.value)}
+            step="0.1"
+            min="0"
+            max="100"
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label htmlFor="muscle" className="text-sm font-medium">
+            Muscle %
+          </label>
+          <Input
+            id="muscle"
+            type="number"
+            value={musclePercentage}
+            onChange={(e) => setMusclePercentage(e.target.value)}
+            step="0.1"
+            min="0"
+            max="100"
+            className="mt-1"
+          />
+        </div>
       </div>
-      <div className="flex gap-2">
-        <Input
-          type="number"
-          value={fatPercentage}
-          onChange={(e) => setFatPercentage(e.target.value)}
-          placeholder="Fat %"
-          step="0.1"
-          min="0"
-          max="100"
-          className="w-32"
-        />
-        <Input
-          type="number"
-          value={musclePercentage}
-          onChange={(e) => setMusclePercentage(e.target.value)}
-          placeholder="Muscle %"
-          step="0.1"
-          min="0"
-          max="100"
-          className="w-32"
-        />
-      </div>
+      <Button type="submit" className="w-full">Record Measurements</Button>
     </form>
   );
 };
