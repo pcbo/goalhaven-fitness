@@ -24,7 +24,11 @@ interface WorkoutTrackerProps {
 
 export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrackerProps) => {
   const getComparisonIcon = (current: number, previous: number) => {
-    if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
+    if (!previous) {
+      return current > 0 
+        ? <ArrowUp className="h-4 w-4 text-green-500" />
+        : <Minus className="h-4 w-4 text-gray-500" />;
+    }
     if (current > previous) return <ArrowUp className="h-4 w-4 text-green-500" />;
     if (current < previous) return <ArrowDown className="h-4 w-4 text-red-500" />;
     return <Minus className="h-4 w-4 text-gray-500" />;
