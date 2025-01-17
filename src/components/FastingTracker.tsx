@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDistanceToNow, format, differenceInMinutes } from "date-fns";
+import { FastingCountdown } from "./FastingCountdown";
 
 interface FastingSession {
   id: string;
@@ -58,24 +59,22 @@ export const FastingTracker = ({
         <CardTitle>Fasting</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="w-full md:w-auto">
             {isCurrentlyFasting && currentSession ? (
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-primary">
-                  {formatDistanceToNow(new Date(currentSession.start_time), { addSuffix: true })}
-                </div>
-                <div className="text-sm text-muted-foreground">
+                <FastingCountdown startTime={currentSession.start_time} />
+                <div className="text-sm text-muted-foreground text-center mt-4">
                   Started: {formatDateTime(currentSession.start_time)}
                 </div>
               </div>
             ) : currentSession?.duration_minutes ? (
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-primary">
+                <div className="text-3xl font-bold text-primary text-center">
                   {formatDuration(currentSession.duration_minutes)}
                 </div>
                 {previousSession?.duration_minutes && (
-                  <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                  <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground justify-center">
                     {getComparisonIcon(
                       currentSession.duration_minutes,
                       previousSession.duration_minutes
@@ -85,13 +84,13 @@ export const FastingTracker = ({
                 )}
               </div>
             ) : (
-              <div className="text-3xl font-bold text-primary">No sessions yet</div>
+              <div className="text-3xl font-bold text-primary text-center">No sessions yet</div>
             )}
           </div>
           <Button
             onClick={isCurrentlyFasting ? onEndFasting : onStartFasting}
             variant={isCurrentlyFasting ? "destructive" : "default"}
-            className="h-12 px-6"
+            className="h-12 px-6 w-full md:w-auto"
           >
             <Timer className="mr-2 h-5 w-5" />
             {isCurrentlyFasting ? "End Fast" : "Start Fast"}
