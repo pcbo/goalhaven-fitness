@@ -32,35 +32,36 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
     return () => clearInterval(interval);
   }, [startTime, targetHours]);
 
-  // Create 16 stripes (one for each hour)
-  const stripes = Array.from({ length: 16 }, (_, i) => {
-    const rotation = (i * 360) / 16;
-    const isCompleted = (progress / 100) * 16 > i;
-    
-    return (
-      <rect
-        key={i}
-        x="47%"
-        y="0%"
-        width="6%"
-        height="46%"
-        transform={`rotate(${rotation} 50 50)`}
-        className={cn(
-          "origin-bottom transition-colors duration-500",
-          isCompleted ? "fill-primary" : "fill-muted"
-        )}
-      />
-    );
-  });
+  // Calculate the circle's circumference and the filled portion
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const filled = ((100 - progress) * circumference) / 100;
 
   return (
     <div className="relative w-full max-w-[10rem] aspect-square mx-auto">
       <svg
         viewBox="0 0 100 100"
         className="w-full h-full -rotate-90 transform"
-        preserveAspectRatio="xMidYMid meet"
       >
-        {stripes}
+        <circle
+          cx="50"
+          cy="50"
+          r={radius}
+          fill="none"
+          stroke="hsl(var(--muted))"
+          strokeWidth="4"
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r={radius}
+          fill="none"
+          stroke="hsl(var(--primary))"
+          strokeWidth="4"
+          strokeDasharray={circumference}
+          strokeDashoffset={filled}
+          className="transition-all duration-500"
+        />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         <div className="text-2xl font-bold text-primary">{remainingTime}</div>

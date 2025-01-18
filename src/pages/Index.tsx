@@ -240,9 +240,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background px-2 py-4 sm:p-6">
-      <div className="mx-auto max-w-3xl space-y-4 sm:space-y-6">
-        <h1 className="text-2xl sm:text-4xl font-bold text-primary text-center sm:text-left">Goals Haven</h1>
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-3xl p-4 space-y-4 sm:space-y-6">
         <div className="grid gap-4 sm:gap-6">
           <FastingTracker 
             initialSessions={fastingSessions}
