@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown, Minus, Timer } from "lucide-react";
 import {
@@ -54,11 +54,11 @@ export const FastingTracker = ({
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
+    <div className="w-full bg-background rounded-lg">
+      <CardHeader className="px-0">
         <CardTitle>Fasting</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 px-0">
         <div className="flex flex-col items-center justify-between gap-6">
           <div className="w-full">
             {isCurrentlyFasting && currentSession ? (
@@ -98,7 +98,7 @@ export const FastingTracker = ({
         </div>
 
         {initialSessions.length > 0 && (
-          <div className="rounded-lg border overflow-x-auto">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -126,6 +126,6 @@ export const FastingTracker = ({
           </div>
         )}
       </CardContent>
-    </Card>
+    </div>
   );
 };

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WeightInput } from "@/components/WeightInput";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import {
@@ -9,50 +9,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { format } from "date-fns";
 
-interface WeightEntry {
+interface WeightData {
   date: string;
   weight: number;
-  fat_percentage?: number | null;
-  muscle_percentage?: number | null;
+  fat_percentage: number | null;
+  muscle_percentage: number | null;
 }
 
 interface WeightTrackerProps {
-  initialWeightData: WeightEntry[];
+  initialWeightData: WeightData[];
   onWeightSubmit: (weight: number, fatPercentage?: number, musclePercentage?: number) => void;
 }
 
 export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrackerProps) => {
-  const getComparisonIcon = (current: number | null | undefined, previous: number | null | undefined) => {
-    if (!current) return <Minus className="h-4 w-4 text-gray-500" />;
-    if (!previous) return current > 0 
-      ? <ArrowUp className="h-4 w-4 text-green-500" />
-      : <Minus className="h-4 w-4 text-gray-500" />;
-    if (current > previous) return <ArrowUp className="h-4 w-4 text-red-500" />;
-    if (current < previous) return <ArrowDown className="h-4 w-4 text-green-500" />;
+  const getCurrentWeight = () => initialWeightData[initialWeightData.length - 1];
+  const getPreviousWeight = () => initialWeightData[initialWeightData.length - 2];
+
+  const getComparisonIcon = (current: number, previous: number) => {
+    if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
+    if (current > previous) return <ArrowUp className="h-4 w-4 text-green-500" />;
+    if (current < previous) return <ArrowDown className="h-4 w-4 text-red-500" />;
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getCurrentEntry = () => initialWeightData[initialWeightData.length - 1];
-  const getPreviousEntry = () => initialWeightData[initialWeightData.length - 2];
-
   return (
-    <Card>
-      <CardHeader>
+    <div className="bg-background rounded-lg">
+      <CardHeader className="px-0">
         <CardTitle>Weight</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         <WeightInput onWeightSubmit={onWeightSubmit} />
         {initialWeightData.length > 0 && (
           <div className="mt-4 space-y-4">
@@ -62,14 +49,14 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Weight</span>
                   {getComparisonIcon(
-                    getCurrentEntry()?.weight,
-                    getPreviousEntry()?.weight
+                    getCurrentWeight()?.weight || 0,
+                    getPreviousWeight()?.weight
                   )}
                 </div>
-                <p className="mt-1 text-2xl font-bold">{getCurrentEntry()?.weight?.toFixed(1) || 0} kg</p>
-                {getPreviousEntry() && (
+                <p className="mt-1 text-2xl font-bold">{getCurrentWeight()?.weight || 0} kg</p>
+                {getPreviousWeight() && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {getPreviousEntry()?.weight?.toFixed(1)} kg
+                    Previous: {getPreviousWeight()?.weight} kg
                   </p>
                 )}
               </div>
@@ -77,16 +64,16 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Fat %</span>
                   {getComparisonIcon(
-                    getCurrentEntry()?.fat_percentage,
-                    getPreviousEntry()?.fat_percentage
+                    getCurrentWeight()?.fat_percentage || 0,
+                    getPreviousWeight()?.fat_percentage
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {getCurrentEntry()?.fat_percentage?.toFixed(1) || '-'}%
+                  {getCurrentWeight()?.fat_percentage || 0}%
                 </p>
-                {getPreviousEntry()?.fat_percentage && (
+                {getPreviousWeight()?.fat_percentage && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {getPreviousEntry()?.fat_percentage?.toFixed(1)}%
+                    Previous: {getPreviousWeight()?.fat_percentage}%
                   </p>
                 )}
               </div>
@@ -94,22 +81,22 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Muscle %</span>
                   {getComparisonIcon(
-                    getCurrentEntry()?.muscle_percentage,
-                    getPreviousEntry()?.muscle_percentage
+                    getCurrentWeight()?.muscle_percentage || 0,
+                    getPreviousWeight()?.muscle_percentage
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {getCurrentEntry()?.muscle_percentage?.toFixed(1) || '-'}%
+                  {getCurrentWeight()?.muscle_percentage || 0}%
                 </p>
-                {getPreviousEntry()?.muscle_percentage && (
+                {getPreviousWeight()?.muscle_percentage && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {getPreviousEntry()?.muscle_percentage?.toFixed(1)}%
+                    Previous: {getPreviousWeight()?.muscle_percentage}%
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="mt-6 rounded-lg border">
+            <div className="mt-6">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -120,12 +107,12 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {initialWeightData.slice(-5).reverse().map((entry, index) => (
+                  {initialWeightData.slice(-5).reverse().map((weight, index) => (
                     <TableRow key={index}>
-                      <TableCell>{formatDate(entry.date)}</TableCell>
-                      <TableCell>{entry.weight.toFixed(1)}</TableCell>
-                      <TableCell>{entry.fat_percentage?.toFixed(1) || '-'}</TableCell>
-                      <TableCell>{entry.muscle_percentage?.toFixed(1) || '-'}</TableCell>
+                      <TableCell>{format(new Date(weight.date), "dd/MM HH:mm")}</TableCell>
+                      <TableCell>{weight.weight}</TableCell>
+                      <TableCell>{weight.fat_percentage || "-"}</TableCell>
+                      <TableCell>{weight.muscle_percentage || "-"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -134,6 +121,6 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
           </div>
         )}
       </CardContent>
-    </Card>
+    </div>
   );
 };

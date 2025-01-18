@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutInput } from "@/components/WorkoutInput";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import {
@@ -54,11 +54,11 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="bg-background rounded-lg">
+      <CardHeader className="px-0">
         <CardTitle>Workouts</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         <WorkoutInput onWorkoutSubmit={onWorkoutSubmit} />
         {initialWorkouts.length > 0 && (
           <div className="mt-4 space-y-4">
@@ -113,7 +113,7 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
               </div>
             </div>
 
-            <div className="mt-6 rounded-lg border">
+            <div className="mt-6">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -138,6 +138,6 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
           </div>
         )}
       </CardContent>
-    </Card>
+    </div>
   );
 };
