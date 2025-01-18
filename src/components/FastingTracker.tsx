@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDistanceToNow, format, differenceInMinutes } from "date-fns";
+import { format } from "date-fns";
 import { FastingCountdown } from "./FastingCountdown";
 
 interface FastingSession {
@@ -50,17 +50,17 @@ export const FastingTracker = ({
   };
 
   const formatDateTime = (dateString: string) => {
-    return format(new Date(dateString), "dd/MM/yyyy HH:mm");
+    return format(new Date(dateString), "dd/MM HH:mm");
   };
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Fasting</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="w-full md:w-auto">
+        <div className="flex flex-col items-center justify-between gap-6">
+          <div className="w-full">
             {isCurrentlyFasting && currentSession ? (
               <div className="space-y-2">
                 <FastingCountdown startTime={currentSession.start_time} />
@@ -90,7 +90,7 @@ export const FastingTracker = ({
           <Button
             onClick={isCurrentlyFasting ? onEndFasting : onStartFasting}
             variant={isCurrentlyFasting ? "destructive" : "default"}
-            className="h-12 px-6 w-full md:w-auto"
+            className="w-full sm:w-auto h-12 px-6"
           >
             <Timer className="mr-2 h-5 w-5" />
             {isCurrentlyFasting ? "End Fast" : "Start Fast"}
@@ -98,23 +98,23 @@ export const FastingTracker = ({
         </div>
 
         {initialSessions.length > 0 && (
-          <div className="rounded-lg border">
+          <div className="rounded-lg border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Start Time</TableHead>
-                  <TableHead>End Time</TableHead>
-                  <TableHead>Duration</TableHead>
+                  <TableHead className="whitespace-nowrap">Start</TableHead>
+                  <TableHead className="whitespace-nowrap">End</TableHead>
+                  <TableHead className="whitespace-nowrap">Duration</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {initialSessions.slice(-5).reverse().map((session) => (
                   <TableRow key={session.id}>
-                    <TableCell>{formatDateTime(session.start_time)}</TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">{formatDateTime(session.start_time)}</TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {session.end_time ? formatDateTime(session.end_time) : "Ongoing"}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {session.duration_minutes
                         ? formatDuration(session.duration_minutes)
                         : "In progress"}

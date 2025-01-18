@@ -40,11 +40,11 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
     return (
       <rect
         key={i}
-        x="47.5%"
-        y="0"
-        width="5%"
-        height="50%"
-        rx="2"
+        x="48%"
+        y="2%"
+        width="4%"
+        height="48%"
+        rx="1"
         transform={`rotate(${rotation} 50 50)`}
         className={cn(
           "origin-bottom transition-colors duration-500",
@@ -55,10 +55,11 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
   });
 
   return (
-    <div className="relative w-48 h-48 mx-auto">
+    <div className="relative w-full max-w-[12rem] aspect-square mx-auto">
       <svg
         viewBox="0 0 100 100"
         className="w-full h-full -rotate-90 transform"
+        preserveAspectRatio="xMidYMid meet"
       >
         <circle
           cx="50"
@@ -72,8 +73,8 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
         {stripes}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="text-3xl font-bold text-primary">{remainingTime}</div>
-        <div className="text-sm text-muted-foreground">remaining</div>
+        <div className="text-2xl sm:text-3xl font-bold text-primary">{remainingTime}</div>
+        <div className="text-xs sm:text-sm text-muted-foreground">remaining</div>
       </div>
     </div>
   );
