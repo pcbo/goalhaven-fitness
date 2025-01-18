@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
-import { WeightTracker } from "@/components/WeightTracker";
-import { WorkoutTracker } from "@/components/WorkoutTracker";
-import { FastingTracker } from "@/components/FastingTracker";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { differenceInMinutes } from "date-fns";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { SettingsDialog } from "@/components/settings/SettingsDialog";
+import { FastingSection } from "@/components/sections/FastingSection";
+import { WeightSection } from "@/components/sections/WeightSection";
+import { WorkoutSection } from "@/components/sections/WorkoutSection";
 
 const Index = () => {
   const [weightData, setWeightData] = useState([]);
@@ -18,38 +21,25 @@ const Index = () => {
     fetchWorkouts();
     fetchFastingSessions();
 
-    // Set up real-time subscriptions
     const weightsChannel = supabase
       .channel('weights-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'weights' },
-        () => {
-          fetchWeights();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'weights' }, () => {
+        fetchWeights();
+      })
       .subscribe();
 
     const workoutsChannel = supabase
       .channel('workouts-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'workouts' },
-        () => {
-          fetchWorkouts();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workouts' }, () => {
+        fetchWorkouts();
+      })
       .subscribe();
 
     const fastingChannel = supabase
       .channel('fasting-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'fasting_sessions' },
-        () => {
-          fetchFastingSessions();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'fasting_sessions' }, () => {
+        fetchFastingSessions();
+      })
       .subscribe();
 
     return () => {
@@ -169,7 +159,6 @@ const Index = () => {
   };
 
   const handleStartFasting = async () => {
-    // Check if there's already an active session
     const currentSession = fastingSessions[fastingSessions.length - 1];
     if (currentSession && !currentSession.end_time) {
       toast({
@@ -197,7 +186,7 @@ const Index = () => {
     }
 
     setIsCurrentlyFasting(true);
-    await fetchFastingSessions(); // Refresh the data
+    await fetchFastingSessions();
   };
 
   const handleEndFasting = async () => {
@@ -214,7 +203,6 @@ const Index = () => {
 
     const endTime = new Date();
     const startTime = new Date(currentSession.start_time);
-    // Calculate duration including the full minute
     const durationMinutes = Math.ceil(differenceInMinutes(endTime, startTime));
 
     const { error } = await supabase
@@ -236,30 +224,31 @@ const Index = () => {
     }
 
     setIsCurrentlyFasting(false);
-    await fetchFastingSessions(); // Refresh the data
+    await fetchFastingSessions();
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-3xl p-4 space-y-4 sm:space-y-6">
-        <div className="grid gap-4 sm:gap-6">
-          <FastingTracker 
-            initialSessions={fastingSessions}
-            onStartFasting={handleStartFasting}
-            onEndFasting={handleEndFasting}
-            isCurrentlyFasting={isCurrentlyFasting}
-          />
-          <WeightTracker 
-            initialWeightData={weightData} 
-            onWeightSubmit={handleWeightSubmit} 
-          />
-          <WorkoutTracker 
-            initialWorkouts={workouts} 
-            onWorkoutSubmit={handleWorkoutSubmit} 
-          />
-        </div>
-      </div>
-    </div>
+    <>
+      <Header />
+      <SettingsDialog />
+      <main className="min-h-screen container max-w-3xl p-4 space-y-4 sm:space-y-6">
+        <FastingSection
+          fastingSessions={fastingSessions}
+          onStartFasting={handleStartFasting}
+          onEndFasting={handleEndFasting}
+          isCurrentlyFasting={isCurrentlyFasting}
+        />
+        <WeightSection
+          weightData={weightData}
+          onWeightSubmit={handleWeightSubmit}
+        />
+        <WorkoutSection
+          workouts={workouts}
+          onWorkoutSubmit={handleWorkoutSubmit}
+        />
+      </main>
+      <Footer />
+    </>
   );
 };
 
