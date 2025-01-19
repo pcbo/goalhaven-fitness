@@ -38,9 +38,12 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
   const getPreviousWorkout = () => initialWorkouts[initialWorkouts.length - 2];
 
   const formatPlankTime = (seconds: number) => {
-    if (isNaN(seconds) || seconds === 0) return '0m';
+    if (!seconds || isNaN(seconds)) return '0m';
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
+    if (minutes === 0) {
+      return `${remainingSeconds}s`;
+    }
     return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
   };
 
