@@ -1,4 +1,3 @@
-import { Link } from "react-scroll";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,55 +5,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu } from "lucide-react";
+import { Link } from "react-scroll";
 import { SettingsDialog } from "./settings/SettingsDialog";
 
 export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <nav className="container flex h-14 max-w-screen-2xl items-center justify-between">
-        <div className="flex flex-1 items-center justify-center space-x-6 text-sm font-medium">
-          <Link
-            to="fasting"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            className="cursor-pointer hover:text-primary transition-colors"
-          >
-            Fasting
-          </Link>
-          <Link
-            to="weight"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            className="cursor-pointer hover:text-primary transition-colors"
-          >
-            Weight
-          </Link>
-          <Link
-            to="workout"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            className="cursor-pointer hover:text-primary transition-colors"
-          >
-            Workout
-          </Link>
-          <Link
-            to="reading"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            className="cursor-pointer hover:text-primary transition-colors"
-          >
-            Reading
-          </Link>
-        </div>
-        <div className="flex items-center">
+        <div className="flex flex-1 items-center justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="p-2 hover:bg-accent rounded-md">
@@ -62,10 +20,57 @@ export const Header = () => {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link
+                  to="fasting"
+                  spy={true}
+                  smooth={true}
+                  offset={-70}
+                  duration={500}
+                  className="cursor-pointer"
+                >
+                  Fasting
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  to="weight"
+                  spy={true}
+                  smooth={true}
+                  offset={-70}
+                  duration={500}
+                  className="cursor-pointer"
+                >
+                  Weight
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  to="workout"
+                  spy={true}
+                  smooth={true}
+                  offset={-70}
+                  duration={500}
+                  className="cursor-pointer"
+                >
+                  Workout
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  to="reading"
+                  spy={true}
+                  smooth={true}
+                  offset={-70}
+                  duration={500}
+                  className="cursor-pointer"
+                >
+                  Reading
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>
                 <SettingsDialog />
               </DropdownMenuItem>
-              {/* Future auth items will go here */}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

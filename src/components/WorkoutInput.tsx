@@ -61,6 +61,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
             }
             min="0"
             className="mt-1"
+            placeholder="0"
           />
         </div>
         <div>
@@ -76,6 +77,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
             }
             min="0"
             className="mt-1"
+            placeholder="0"
           />
         </div>
         <div>
@@ -95,6 +97,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
             min="0"
             step="0.5"
             className="mt-1"
+            placeholder="0"
           />
         </div>
       </div>

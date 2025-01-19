@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Check, X } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -41,7 +42,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
           </Button>
         ) : (
           <div className="text-center text-primary font-medium">
-            Today's reading completed! 🎉
+            Today's reading completed
           </div>
         )}
       </div>
@@ -61,9 +62,13 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
                   <TableCell>{format(new Date(session.date), "dd/MM")}</TableCell>
                   <TableCell>
                     {session.completed ? (
-                      <span className="text-green-500">✓ Completed</span>
+                      <span className="text-green-500 flex items-center gap-1">
+                        <Check className="h-4 w-4" /> Completed
+                      </span>
                     ) : (
-                      <span className="text-red-500">✗ Missed</span>
+                      <span className="text-red-500 flex items-center gap-1">
+                        <X className="h-4 w-4" /> Missed
+                      </span>
                     )}
                   </TableCell>
                 </TableRow>
