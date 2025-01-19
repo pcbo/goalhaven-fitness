@@ -69,11 +69,11 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {getCurrentWeight()?.fat_percentage || 0}
+                  {getCurrentWeight()?.fat_percentage || 0}%
                 </p>
                 {getPreviousWeight()?.fat_percentage && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {getPreviousWeight()?.fat_percentage}
+                    Previous: {getPreviousWeight()?.fat_percentage}%
                   </p>
                 )}
               </div>
@@ -86,11 +86,11 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {getCurrentWeight()?.muscle_percentage || 0}
+                  {getCurrentWeight()?.muscle_percentage || 0}%
                 </p>
                 {getPreviousWeight()?.muscle_percentage && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {getPreviousWeight()?.muscle_percentage}
+                    Previous: {getPreviousWeight()?.muscle_percentage}%
                   </p>
                 )}
               </div>

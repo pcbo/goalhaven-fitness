@@ -12,6 +12,7 @@ export const ReadingSection = ({ readingSessions, onReadingSubmit, todayComplete
       <ReadingTracker
         onReadingSubmit={onReadingSubmit}
         todayCompleted={todayCompleted}
+        readingSessions={readingSessions}
       />
     </section>
   );

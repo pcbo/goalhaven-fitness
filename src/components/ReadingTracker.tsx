@@ -1,12 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
 
 interface ReadingTrackerProps {
   onReadingSubmit: (pagesRead: number) => void;
   todayCompleted: boolean;
+  readingSessions: any[];
 }
 
-export const ReadingTracker = ({ onReadingSubmit, todayCompleted }: ReadingTrackerProps) => {
+export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSessions }: ReadingTrackerProps) => {
   const { toast } = useToast();
 
   const handleSubmit = () => {
@@ -35,6 +45,33 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted }: ReadingTrack
           </div>
         )}
       </div>
+
+      {readingSessions.length > 0 && (
+        <div className="mt-6">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {readingSessions.slice(-5).reverse().map((session, index) => (
+                <TableRow key={index}>
+                  <TableCell>{format(new Date(session.date), "dd/MM")}</TableCell>
+                  <TableCell>
+                    {session.completed ? (
+                      <span className="text-green-500">✓ Completed</span>
+                    ) : (
+                      <span className="text-red-500">✗ Missed</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 };
