@@ -1,25 +1,28 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { differenceInMinutes } from "date-fns";
+import { differenceInMinutes, startOfDay, endOfDay } from "date-fns";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { FastingSection } from "@/components/sections/FastingSection";
 import { WeightSection } from "@/components/sections/WeightSection";
 import { WorkoutSection } from "@/components/sections/WorkoutSection";
+import { ReadingSection } from "@/components/sections/ReadingSection";
 
 const Index = () => {
   const [weightData, setWeightData] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [fastingSessions, setFastingSessions] = useState([]);
+  const [readingSessions, setReadingSessions] = useState([]);
   const [isCurrentlyFasting, setIsCurrentlyFasting] = useState(false);
+  const [todayReadingCompleted, setTodayReadingCompleted] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchWeights();
     fetchWorkouts();
     fetchFastingSessions();
+    fetchReadingSessions();
 
     const weightsChannel = supabase
       .channel('weights-changes')
@@ -42,10 +45,18 @@ const Index = () => {
       })
       .subscribe();
 
+    const readingChannel = supabase
+      .channel('reading-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reading_sessions' }, () => {
+        fetchReadingSessions();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(weightsChannel);
       supabase.removeChannel(workoutsChannel);
       supabase.removeChannel(fastingChannel);
+      supabase.removeChannel(readingChannel);
     };
   }, []);
 
@@ -84,14 +95,7 @@ const Index = () => {
       return;
     }
 
-    const formattedWorkouts = data.map(workout => ({
-      date: workout.date,
-      pushups: workout.pushups,
-      situps: workout.situps,
-      plankSeconds: workout.plank_seconds,
-    }));
-
-    setWorkouts(formattedWorkouts);
+    setWorkouts(data);
   };
 
   const fetchFastingSessions = async () => {
@@ -111,9 +115,31 @@ const Index = () => {
     }
 
     setFastingSessions(data);
-    // Check if there's an ongoing session
     const lastSession = data[data.length - 1];
     setIsCurrentlyFasting(lastSession && !lastSession.end_time);
+  };
+
+  const fetchReadingSessions = async () => {
+    const today = new Date();
+    const { data, error } = await supabase
+      .from('reading_sessions')
+      .select('*')
+      .gte('date', startOfDay(today).toISOString())
+      .lte('date', endOfDay(today).toISOString())
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching reading sessions:', error);
+      toast({
+        title: "Error fetching reading sessions",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setReadingSessions(data || []);
+    setTodayReadingCompleted(data?.some(session => session.completed) || false);
   };
 
   const handleWeightSubmit = async (weight: number, fatPercentage?: number, musclePercentage?: number) => {
@@ -186,7 +212,6 @@ const Index = () => {
     }
 
     setIsCurrentlyFasting(true);
-    await fetchFastingSessions();
   };
 
   const handleEndFasting = async () => {
@@ -224,13 +249,35 @@ const Index = () => {
     }
 
     setIsCurrentlyFasting(false);
-    await fetchFastingSessions();
+  };
+
+  const handleReadingSubmit = async (pagesRead: number) => {
+    const goals = JSON.parse(localStorage.getItem('fitness-goals') || '{}');
+    const targetPages = goals.targetPagesPerDay || 5;
+    
+    const { error } = await supabase
+      .from('reading_sessions')
+      .insert([{
+        pages_read: pagesRead,
+        completed: pagesRead >= targetPages
+      }]);
+
+    if (error) {
+      console.error('Error recording reading session:', error);
+      toast({
+        title: "Error saving reading session",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await fetchReadingSessions();
   };
 
   return (
     <>
       <Header />
-      <SettingsDialog />
       <main className="min-h-screen container max-w-3xl p-4 space-y-4 sm:space-y-6">
         <FastingSection
           fastingSessions={fastingSessions}
@@ -245,6 +292,11 @@ const Index = () => {
         <WorkoutSection
           workouts={workouts}
           onWorkoutSubmit={handleWorkoutSubmit}
+        />
+        <ReadingSection
+          readingSessions={readingSessions}
+          onReadingSubmit={handleReadingSubmit}
+          todayCompleted={todayReadingCompleted}
         />
       </main>
       <Footer />

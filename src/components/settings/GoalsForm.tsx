@@ -12,18 +12,23 @@ interface Goals {
   targetPushups: number;
   targetSitups: number;
   targetPlankMinutes: number;
+  targetPagesPerDay: number;
 }
 
 export const GoalsForm = () => {
   const { toast } = useToast();
-  const [goals, setGoals] = useState<Goals>({
-    fastingHours: 16,
-    targetWeight: 0,
-    targetFatPercentage: 0,
-    targetMusclePercentage: 0,
-    targetPushups: 0,
-    targetSitups: 0,
-    targetPlankMinutes: 0,
+  const [goals, setGoals] = useState<Goals>(() => {
+    const savedGoals = localStorage.getItem('fitness-goals');
+    return savedGoals ? JSON.parse(savedGoals) : {
+      fastingHours: 16,
+      targetWeight: 0,
+      targetFatPercentage: 0,
+      targetMusclePercentage: 0,
+      targetPushups: 0,
+      targetSitups: 0,
+      targetPlankMinutes: 0,
+      targetPagesPerDay: 5,
+    };
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -134,6 +139,19 @@ export const GoalsForm = () => {
               step="0.5"
             />
           </div>
+        </div>
+
+        <div>
+          <Label htmlFor="targetPages">Target Pages per Day</Label>
+          <Input
+            id="targetPages"
+            type="number"
+            value={goals.targetPagesPerDay}
+            onChange={(e) =>
+              setGoals({ ...goals, targetPagesPerDay: Number(e.target.value) })
+            }
+            min="0"
+          />
         </div>
       </div>
       <Button type="submit" className="w-full">Save Goals</Button>

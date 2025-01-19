@@ -33,6 +33,27 @@ export type Database = {
         }
         Relationships: []
       }
+      reading_sessions: {
+        Row: {
+          completed: boolean
+          date: string
+          id: string
+          pages_read: number
+        }
+        Insert: {
+          completed?: boolean
+          date?: string
+          id?: string
+          pages_read: number
+        }
+        Update: {
+          completed?: boolean
+          date?: string
+          id?: string
+          pages_read?: number
+        }
+        Relationships: []
+      }
       weights: {
         Row: {
           date: string

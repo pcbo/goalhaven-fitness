@@ -9,6 +9,7 @@ interface FastingCountdownProps {
 export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdownProps) => {
   const [progress, setProgress] = useState(0);
   const [remainingTime, setRemainingTime] = useState<string>("");
+  const [goalAchieved, setGoalAchieved] = useState(false);
 
   useEffect(() => {
     const updateProgress = () => {
@@ -25,10 +26,11 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
       setRemainingTime(`${hours}h ${minutes}m`);
       
       setProgress(currentProgress);
+      setGoalAchieved(elapsedMinutes >= targetMinutes);
     };
 
     updateProgress();
-    const interval = setInterval(updateProgress, 60000); // Update every minute
+    const interval = setInterval(updateProgress, 1000); // Update every second for smoother countdown
     return () => clearInterval(interval);
   }, [startTime, targetHours]);
 
@@ -56,7 +58,7 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
           cy="50"
           r={radius}
           fill="none"
-          stroke="hsl(var(--primary))"
+          stroke="#0D9488"
           strokeWidth="4"
           strokeDasharray={circumference}
           strokeDashoffset={filled}
@@ -64,8 +66,17 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="text-2xl font-bold text-primary">{remainingTime}</div>
-        <div className="text-xs text-muted-foreground">remaining</div>
+        {goalAchieved ? (
+          <>
+            <div className="text-xl font-bold text-primary">Goal achieved!</div>
+            <div className="text-xs text-muted-foreground">Keep going!</div>
+          </>
+        ) : (
+          <>
+            <div className="text-2xl font-bold text-primary">{remainingTime}</div>
+            <div className="text-xs text-muted-foreground">remaining</div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -55,7 +55,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
           <Input
             id="pushups"
             type="number"
-            value={workout.pushups}
+            value={workout.pushups || ''}
             onChange={(e) =>
               setWorkout({ ...workout, pushups: parseInt(e.target.value) || 0 })
             }
@@ -70,7 +70,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
           <Input
             id="situps"
             type="number"
-            value={workout.situps}
+            value={workout.situps || ''}
             onChange={(e) =>
               setWorkout({ ...workout, situps: parseInt(e.target.value) || 0 })
             }
@@ -85,7 +85,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
           <Input
             id="plank"
             type="number"
-            value={workout.plankSeconds}
+            value={workout.plankSeconds || ''}
             onChange={(e) =>
               setWorkout({
                 ...workout,
