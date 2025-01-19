@@ -62,35 +62,35 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
               </div>
               <div className="rounded-lg border p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Fat %</span>
+                  <span className="text-sm font-medium">Fat</span>
                   {getComparisonIcon(
                     getCurrentWeight()?.fat_percentage || 0,
                     getPreviousWeight()?.fat_percentage
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {getCurrentWeight()?.fat_percentage || 0}%
+                  {getCurrentWeight()?.fat_percentage || 0}
                 </p>
                 {getPreviousWeight()?.fat_percentage && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {getPreviousWeight()?.fat_percentage}%
+                    Previous: {getPreviousWeight()?.fat_percentage}
                   </p>
                 )}
               </div>
               <div className="rounded-lg border p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Muscle %</span>
+                  <span className="text-sm font-medium">Muscle</span>
                   {getComparisonIcon(
                     getCurrentWeight()?.muscle_percentage || 0,
                     getPreviousWeight()?.muscle_percentage
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {getCurrentWeight()?.muscle_percentage || 0}%
+                  {getCurrentWeight()?.muscle_percentage || 0}
                 </p>
                 {getPreviousWeight()?.muscle_percentage && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {getPreviousWeight()?.muscle_percentage}%
+                    Previous: {getPreviousWeight()?.muscle_percentage}
                   </p>
                 )}
               </div>
@@ -102,8 +102,8 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Weight (kg)</TableHead>
-                    <TableHead>Fat %</TableHead>
-                    <TableHead>Muscle %</TableHead>
+                    <TableHead>Fat</TableHead>
+                    <TableHead>Muscle</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
