@@ -61,7 +61,7 @@ export const Index = () => {
     const readingChannel = supabase
       .channel('reading-changes')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'reading_sessions' }, 
+        { event: '*', schema: 'public', table: 'sessions' }, 
         () => {
           console.log('Reading sessions updated, fetching new data...');
           fetchReadingSessions();
@@ -140,7 +140,7 @@ export const Index = () => {
 
   const fetchReadingSessions = async () => {
     const { data, error } = await supabase
-      .from('reading_sessions')
+      .from('sessions')
       .select('*')
       .order('date', { ascending: true });
 
@@ -276,7 +276,7 @@ export const Index = () => {
 
   const handleReadingSubmit = async () => {
     const { error } = await supabase
-      .from('reading_sessions')
+      .from('sessions')
       .insert([{
         completed: true
       }]);

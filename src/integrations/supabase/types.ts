@@ -33,7 +33,7 @@ export type Database = {
         }
         Relationships: []
       }
-      reading_sessions: {
+      sessions: {
         Row: {
           completed: boolean
           date: string

@@ -29,7 +29,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
       
       // Get all existing sessions within the last 5 days
       const { data: existingSessions, error: fetchError } = await supabase
-        .from('reading_sessions')
+        .from('sessions')
         .select('*')
         .gte('date', lastFiveDays[4].toISOString())
         .lte('date', today.toISOString());
@@ -50,7 +50,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
         if (!sessionExists && isBefore(date, today)) {
           console.log("Adding missed session for:", format(date, "yyyy-MM-dd"));
           const { error } = await supabase
-            .from('reading_sessions')
+            .from('sessions')
             .insert([{
               date: date.toISOString(),
               completed: false
