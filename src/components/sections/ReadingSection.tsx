@@ -14,16 +14,16 @@ export const ReadingSection = ({ readingSessions, onReadingSubmit, todayComplete
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <section id="reading" className="py-2">
+    <section id="reading" className="py-1">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="w-full bg-background rounded-lg">
-          <CollapsibleTrigger className="w-full px-6 py-4">
+          <CollapsibleTrigger className="w-full px-6 py-2">
             <div className="flex items-center justify-between">
               <CardTitle>Reading</CardTitle>
               <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "transform rotate-180" : ""}`} />
             </div>
           </CollapsibleTrigger>
-          <CollapsibleContent className="px-6 pb-4">
+          <CollapsibleContent className="px-6 pb-2">
             <ReadingTracker
               onReadingSubmit={onReadingSubmit}
               todayCompleted={todayCompleted}
