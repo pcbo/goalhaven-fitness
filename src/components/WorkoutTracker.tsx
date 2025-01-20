@@ -34,8 +34,8 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
 
-  const getCurrentWorkout = () => initialWorkouts[initialWorkouts.length - 1];
-  const getPreviousWorkout = () => initialWorkouts[initialWorkouts.length - 2];
+  const getCurrentWorkout = () => initialWorkouts[0];
+  const getPreviousWorkout = () => initialWorkouts[1];
 
   const formatPlankTime = (seconds: number | null | undefined): string => {
     if (!seconds || isNaN(seconds)) return '0m';
@@ -130,7 +130,7 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {initialWorkouts.slice(-5).reverse().map((workout, index) => (
+                  {initialWorkouts.slice(0, 5).map((workout, index) => (
                     <TableRow key={index}>
                       <TableCell>{formatDate(workout.date)}</TableCell>
                       <TableCell>{workout.pushups}</TableCell>

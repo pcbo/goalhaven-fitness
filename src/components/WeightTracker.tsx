@@ -24,8 +24,8 @@ interface WeightTrackerProps {
 }
 
 export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrackerProps) => {
-  const getCurrentWeight = () => initialWeightData[initialWeightData.length - 1];
-  const getPreviousWeight = () => initialWeightData[initialWeightData.length - 2];
+  const getCurrentWeight = () => initialWeightData[0];
+  const getPreviousWeight = () => initialWeightData[1];
 
   const getComparisonIcon = (current: number, previous: number, isMuscle: boolean = false) => {
     if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
@@ -38,7 +38,15 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
 
-  // ... keep existing code (rest of the component implementation)
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return format(new Date(dateString), "dd/MM HH:mm");
+  };
 
   return (
     <div className="bg-background rounded-lg">
@@ -114,7 +122,7 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {initialWeightData.slice(-5).reverse().map((weight, index) => (
+                  {initialWeightData.slice(0, 5).map((weight, index) => (
                     <TableRow key={index}>
                       <TableCell>{format(new Date(weight.date), "dd/MM HH:mm")}</TableCell>
                       <TableCell>{weight.weight}</TableCell>

@@ -94,7 +94,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
               </TableRow>
             </TableHeader>
             <TableBody>
-              {readingSessions.slice(-5).reverse().map((session, index) => (
+              {readingSessions.slice(0, 5).map((session, index) => (
                 <TableRow key={index}>
                   <TableCell>{format(new Date(session.date), "dd/MM")}</TableCell>
                   <TableCell>
