@@ -7,7 +7,6 @@ import { FastingSection } from "@/components/sections/FastingSection";
 import { WeightSection } from "@/components/sections/WeightSection";
 import { WorkoutSection } from "@/components/sections/WorkoutSection";
 import { ReadingSection } from "@/components/sections/ReadingSection";
-import { Header } from "@/components/Header";
 
 const Index = () => {
   const [weightData, setWeightData] = useState([]);
@@ -28,6 +27,7 @@ const Index = () => {
     const weightsChannel = supabase
       .channel('weights-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'weights' }, () => {
+        console.log('Weights updated, fetching new data...');
         fetchWeights();
       })
       .subscribe();
@@ -35,6 +35,7 @@ const Index = () => {
     const workoutsChannel = supabase
       .channel('workouts-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'workouts' }, () => {
+        console.log('Workouts updated, fetching new data...');
         fetchWorkouts();
       })
       .subscribe();
@@ -42,6 +43,7 @@ const Index = () => {
     const fastingChannel = supabase
       .channel('fasting-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'fasting_sessions' }, () => {
+        console.log('Fasting sessions updated, fetching new data...');
         fetchFastingSessions();
       })
       .subscribe();
@@ -49,6 +51,7 @@ const Index = () => {
     const readingChannel = supabase
       .channel('reading-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reading_sessions' }, () => {
+        console.log('Reading sessions updated, fetching new data...');
         fetchReadingSessions();
       })
       .subscribe();
@@ -96,6 +99,7 @@ const Index = () => {
       return;
     }
 
+    console.log('Fetched workouts:', data);
     setWorkouts(data);
   };
 
@@ -121,13 +125,10 @@ const Index = () => {
   };
 
   const fetchReadingSessions = async () => {
-    const today = new Date();
     const { data, error } = await supabase
       .from('reading_sessions')
       .select('*')
-      .gte('date', startOfDay(today).toISOString())
-      .lte('date', endOfDay(today).toISOString())
-      .order('date', { ascending: false });
+      .order('date', { ascending: true });
 
     if (error) {
       console.error('Error fetching reading sessions:', error);
@@ -140,7 +141,18 @@ const Index = () => {
     }
 
     setReadingSessions(data || []);
-    setTodayReadingCompleted(data?.some(session => session.completed) || false);
+    
+    // Check if there's a completed session today
+    const today = new Date();
+    const todayStart = startOfDay(today);
+    const todayEnd = endOfDay(today);
+    
+    const todaySession = data?.find(session => {
+      const sessionDate = new Date(session.date);
+      return sessionDate >= todayStart && sessionDate <= todayEnd && session.completed;
+    });
+    
+    setTodayReadingCompleted(!!todaySession);
   };
 
   const handleWeightSubmit = async (weight: number, fatPercentage?: number, musclePercentage?: number) => {
@@ -211,8 +223,6 @@ const Index = () => {
       });
       return;
     }
-
-    setIsCurrentlyFasting(true);
   };
 
   const handleEndFasting = async () => {
@@ -248,8 +258,6 @@ const Index = () => {
       });
       return;
     }
-
-    setIsCurrentlyFasting(false);
   };
 
   const handleReadingSubmit = async (pagesRead: number) => {
@@ -272,13 +280,10 @@ const Index = () => {
       });
       return;
     }
-
-    await fetchReadingSessions();
   };
 
   return (
     <>
-      <Header />
       <main className="min-h-screen container max-w-3xl p-4 space-y-4 sm:space-y-6">
         <FastingSection
           fastingSessions={fastingSessions}
