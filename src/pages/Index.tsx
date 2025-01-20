@@ -1,232 +1,309 @@
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { differenceInMinutes, startOfDay, endOfDay } from "date-fns";
+import { Footer } from "@/components/Footer";
 import { FastingSection } from "@/components/sections/FastingSection";
 import { WeightSection } from "@/components/sections/WeightSection";
 import { WorkoutSection } from "@/components/sections/WorkoutSection";
 import { ReadingSection } from "@/components/sections/ReadingSection";
-import { SettingsDialog } from "@/components/settings/SettingsDialog";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
-export default function Index() {
-  const { toast } = useToast();
-  const [fastingSessions, setFastingSessions] = useState<any[]>([]);
-  const [weightData, setWeightData] = useState<any[]>([]);
-  const [workouts, setWorkouts] = useState<any[]>([]);
-  const [readingSessions, setReadingSessions] = useState<any[]>([]);
+export const Index = () => {
+  const [weightData, setWeightData] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
+  const [fastingSessions, setFastingSessions] = useState([]);
+  const [readingSessions, setReadingSessions] = useState([]);
   const [isCurrentlyFasting, setIsCurrentlyFasting] = useState(false);
+  const [todayReadingCompleted, setTodayReadingCompleted] = useState(false);
+  const { toast } = useToast();
 
-  // Fetch all data on component mount
   useEffect(() => {
-    fetchFastingSessions();
-    fetchWeightData();
+    fetchWeights();
     fetchWorkouts();
+    fetchFastingSessions();
     fetchReadingSessions();
+
+    // Set up real-time subscriptions
+    const weightsChannel = supabase
+      .channel('weights-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'weights' }, () => {
+        console.log('Weights updated, fetching new data...');
+        fetchWeights();
+      })
+      .subscribe();
+
+    const workoutsChannel = supabase
+      .channel('workouts-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workouts' }, () => {
+        console.log('Workouts updated, fetching new data...');
+        fetchWorkouts();
+      })
+      .subscribe();
+
+    const fastingChannel = supabase
+      .channel('fasting-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'fasting_sessions' }, () => {
+        console.log('Fasting sessions updated, fetching new data...');
+        fetchFastingSessions();
+      })
+      .subscribe();
+
+    const readingChannel = supabase
+      .channel('reading-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reading_sessions' }, () => {
+        console.log('Reading sessions updated, fetching new data...');
+        fetchReadingSessions();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(weightsChannel);
+      supabase.removeChannel(workoutsChannel);
+      supabase.removeChannel(fastingChannel);
+      supabase.removeChannel(readingChannel);
+    };
   }, []);
 
-  // Fasting functions
+  const fetchWeights = async () => {
+    const { data, error } = await supabase
+      .from('weights')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching weights:', error);
+      toast({
+        title: "Error fetching weights",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setWeightData(data);
+  };
+
+  const fetchWorkouts = async () => {
+    const { data, error } = await supabase
+      .from('workouts')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching workouts:', error);
+      toast({
+        title: "Error fetching workouts",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('Fetched workouts:', data);
+    setWorkouts(data);
+  };
+
   const fetchFastingSessions = async () => {
     const { data, error } = await supabase
       .from('fasting_sessions')
       .select('*')
-      .order('date', { ascending: false });
+      .order('date', { ascending: true });
 
     if (error) {
       console.error('Error fetching fasting sessions:', error);
+      toast({
+        title: "Error fetching fasting sessions",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
 
-    setFastingSessions(data || []);
-    // Check if there's an ongoing fast
-    const lastSession = data?.[0];
+    setFastingSessions(data);
+    const lastSession = data[data.length - 1];
     setIsCurrentlyFasting(lastSession && !lastSession.end_time);
   };
 
-  const handleStartFasting = async () => {
-    const { error } = await supabase
-      .from('fasting_sessions')
-      .insert([{ start_time: new Date().toISOString() }]);
-
-    if (error) {
-      toast({
-        title: "Error starting fast",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    fetchFastingSessions();
-    toast({
-      title: "Fast started",
-      description: "Your fasting session has begun",
-    });
-  };
-
-  const handleEndFasting = async () => {
-    const currentSession = fastingSessions[0];
-    if (!currentSession) return;
-
-    const endTime = new Date();
-    const startTime = new Date(currentSession.start_time);
-    const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60));
-
-    const { error } = await supabase
-      .from('fasting_sessions')
-      .update({
-        end_time: endTime.toISOString(),
-        duration_minutes: durationMinutes
-      })
-      .eq('id', currentSession.id);
-
-    if (error) {
-      toast({
-        title: "Error ending fast",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    fetchFastingSessions();
-    toast({
-      title: "Fast ended",
-      description: "Your fasting session has been recorded",
-    });
-  };
-
-  // Weight functions
-  const fetchWeightData = async () => {
+  const fetchReadingSessions = async () => {
     const { data, error } = await supabase
-      .from('weights')
+      .from('reading_sessions')
       .select('*')
-      .order('date', { ascending: false });
+      .order('date', { ascending: true });
 
     if (error) {
-      console.error('Error fetching weight data:', error);
+      console.error('Error fetching reading sessions:', error);
+      toast({
+        title: "Error fetching reading sessions",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
 
-    setWeightData(data || []);
+    setReadingSessions(data || []);
+    
+    // Check if there's a completed session today
+    const today = new Date();
+    const todayStart = startOfDay(today);
+    const todayEnd = endOfDay(today);
+    
+    const todaySession = data?.find(session => {
+      const sessionDate = new Date(session.date);
+      return sessionDate >= todayStart && sessionDate <= todayEnd && session.completed;
+    });
+    
+    setTodayReadingCompleted(!!todaySession);
   };
 
   const handleWeightSubmit = async (weight: number, fatPercentage?: number, musclePercentage?: number) => {
     const { error } = await supabase
       .from('weights')
-      .insert([{
+      .insert([{ 
         weight,
         fat_percentage: fatPercentage,
         muscle_percentage: musclePercentage
       }]);
 
     if (error) {
+      console.error('Error inserting weight:', error);
       toast({
-        title: "Error recording weight",
+        title: "Error saving weight",
         description: error.message,
         variant: "destructive",
       });
-      return;
     }
-
-    fetchWeightData();
   };
 
-  // Workout functions
-  const fetchWorkouts = async () => {
-    const { data, error } = await supabase
-      .from('workouts')
-      .select('*')
-      .order('date', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching workouts:', error);
-      return;
-    }
-
-    setWorkouts(data || []);
-  };
-
-  const handleWorkoutSubmit = async (workout: { pushups: number; situps: number; plankSeconds: number }) => {
+  const handleWorkoutSubmit = async (workout: {
+    pushups: number;
+    situps: number;
+    plankSeconds: number;
+  }) => {
     const { error } = await supabase
       .from('workouts')
       .insert([{
         pushups: workout.pushups,
         situps: workout.situps,
-        plank_seconds: workout.plankSeconds
+        plank_seconds: workout.plankSeconds,
       }]);
 
     if (error) {
+      console.error('Error inserting workout:', error);
       toast({
-        title: "Error recording workout",
+        title: "Error saving workout",
         description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStartFasting = async () => {
+    const currentSession = fastingSessions[fastingSessions.length - 1];
+    if (currentSession && !currentSession.end_time) {
+      toast({
+        title: "Error starting fast",
+        description: "You already have an active fasting session",
         variant: "destructive",
       });
       return;
     }
 
-    fetchWorkouts();
-  };
-
-  // Reading functions
-  const fetchReadingSessions = async () => {
-    const { data, error } = await supabase
-      .from('reading_sessions')
-      .select('*')
-      .order('date', { ascending: false });
+    const { error } = await supabase
+      .from('fasting_sessions')
+      .insert([{
+        start_time: new Date().toISOString(),
+      }]);
 
     if (error) {
-      console.error('Error fetching reading sessions:', error);
+      console.error('Error starting fasting session:', error);
+      toast({
+        title: "Error starting fasting session",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+  };
+
+  const handleEndFasting = async () => {
+    const currentSession = fastingSessions[fastingSessions.length - 1];
+    
+    if (!currentSession || currentSession.end_time) {
+      toast({
+        title: "Error ending fast",
+        description: "No active fasting session found",
+        variant: "destructive",
+      });
       return;
     }
 
-    setReadingSessions(data || []);
+    const endTime = new Date();
+    const startTime = new Date(currentSession.start_time);
+    const durationMinutes = Math.ceil(differenceInMinutes(endTime, startTime));
+
+    const { error } = await supabase
+      .from('fasting_sessions')
+      .update({
+        end_time: endTime.toISOString(),
+        duration_minutes: durationMinutes,
+      })
+      .eq('id', currentSession.id);
+
+    if (error) {
+      console.error('Error ending fasting session:', error);
+      toast({
+        title: "Error ending fasting session",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
   };
 
   const handleReadingSubmit = async () => {
     const { error } = await supabase
       .from('reading_sessions')
-      .insert([{ completed: true }]);
+      .insert([{
+        completed: true
+      }]);
 
     if (error) {
+      console.error('Error recording reading session:', error);
       toast({
-        title: "Error recording reading",
+        title: "Error saving reading session",
         description: error.message,
         variant: "destructive",
       });
       return;
     }
-
-    fetchReadingSessions();
   };
 
-  // Check if today's reading is completed
-  const todayCompleted = readingSessions.some(session => {
-    const sessionDate = new Date(session.date);
-    const today = new Date();
-    return sessionDate.toDateString() === today.toDateString() && session.completed;
-  });
-
   return (
-    <div className="container max-w-2xl mx-auto p-4 space-y-6 pb-20">
-      <SettingsDialog />
-      <FastingSection
-        fastingSessions={fastingSessions}
-        onStartFasting={handleStartFasting}
-        onEndFasting={handleEndFasting}
-        isCurrentlyFasting={isCurrentlyFasting}
-      />
-      <WeightSection
-        weightData={weightData}
-        onWeightSubmit={handleWeightSubmit}
-      />
-      <WorkoutSection
-        workouts={workouts}
-        onWorkoutSubmit={handleWorkoutSubmit}
-      />
-      <ReadingSection
-        readingSessions={readingSessions}
-        onReadingSubmit={handleReadingSubmit}
-        todayCompleted={todayCompleted}
-      />
-    </div>
+    <>
+      <main className="min-h-screen container max-w-3xl p-4 space-y-4 sm:space-y-6">
+        <FastingSection
+          fastingSessions={fastingSessions}
+          onStartFasting={handleStartFasting}
+          onEndFasting={handleEndFasting}
+          isCurrentlyFasting={isCurrentlyFasting}
+        />
+        <WeightSection
+          weightData={weightData}
+          onWeightSubmit={handleWeightSubmit}
+        />
+        <WorkoutSection
+          workouts={workouts}
+          onWorkoutSubmit={handleWorkoutSubmit}
+        />
+        <ReadingSection
+          readingSessions={readingSessions}
+          onReadingSubmit={handleReadingSubmit}
+          todayCompleted={todayReadingCompleted}
+        />
+      </main>
+      <Footer />
+    </>
   );
-}
+};
+
+export default Index;

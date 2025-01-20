@@ -33,8 +33,8 @@ export const FastingTracker = ({
   onEndFasting,
   isCurrentlyFasting,
 }: FastingTrackerProps) => {
-  const currentSession = initialSessions[0];
-  const previousSession = initialSessions[1];
+  const currentSession = initialSessions[initialSessions.length - 1];
+  const previousSession = initialSessions[initialSessions.length - 2];
 
   const getComparisonIcon = (current: number, previous: number) => {
     if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
@@ -107,7 +107,7 @@ export const FastingTracker = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {initialSessions.slice(0, 5).map((session) => (
+                {initialSessions.slice(-5).reverse().map((session) => (
                   <TableRow key={session.id}>
                     <TableCell className="whitespace-nowrap">
                       {formatDateTime(session.start_time)}
