@@ -68,7 +68,6 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
         <WorkoutInput onWorkoutSubmit={onWorkoutSubmit} />
         {initialWorkouts.length > 0 && (
           <div className="mt-4 space-y-4">
-            <h3 className="text-lg font-semibold">Latest Workout</h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="rounded-lg border p-4">
                 <div className="flex items-center justify-between">
