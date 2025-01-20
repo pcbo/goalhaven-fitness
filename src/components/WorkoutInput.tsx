@@ -101,7 +101,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
           />
         </div>
       </div>
-      <Button type="submit" className="w-full">Record Workout</Button>
+      <Button type="submit" className="w-full sm:w-auto h-12 px-6">Record Workout</Button>
     </form>
   );
 };
