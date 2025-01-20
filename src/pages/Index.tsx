@@ -363,18 +363,18 @@ export const Index = () => {
           weightData={weightData}
           onWeightSubmit={handleWeightSubmit}
         />
-        <ReadingSection
-          readingSessions={readingSessions}
-          onReadingSubmit={handleReadingSubmit}
-          todayCompleted={todayReadingCompleted}
+        <WorkoutSection
+          workouts={workouts}
+          onWorkoutSubmit={handleWorkoutSubmit}
         />
         <SleepSection
           sleepSessions={sleepSessions}
           onSleepSubmit={handleSleepSubmit}
         />
-        <WorkoutSection
-          workouts={workouts}
-          onWorkoutSubmit={handleWorkoutSubmit}
+        <ReadingSection
+          readingSessions={readingSessions}
+          onReadingSubmit={handleReadingSubmit}
+          todayCompleted={todayReadingCompleted}
         />
       </main>
       <Footer />
