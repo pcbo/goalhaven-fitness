@@ -27,9 +27,21 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
       const today = startOfDay(new Date());
       const lastFiveDays = Array.from({ length: 5 }, (_, i) => startOfDay(subDays(today, i)));
       
+      // Get all existing sessions within the last 5 days
+      const { data: existingSessions, error: fetchError } = await supabase
+        .from('reading_sessions')
+        .select('*')
+        .gte('date', lastFiveDays[4].toISOString())
+        .lte('date', today.toISOString());
+
+      if (fetchError) {
+        console.error('Error fetching existing sessions:', fetchError);
+        return;
+      }
+
       // Check each of the last 5 days
       for (const date of lastFiveDays) {
-        const sessionExists = readingSessions.some(session => {
+        const sessionExists = existingSessions?.some(session => {
           const sessionDate = startOfDay(new Date(session.date));
           return isEqual(sessionDate, date);
         });
@@ -57,7 +69,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
     };
 
     checkMissedDays();
-  }, [readingSessions, toast]);
+  }, [toast]);
 
   const handleSubmit = () => {
     onReadingSubmit();
@@ -94,7 +106,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
               </TableRow>
             </TableHeader>
             <TableBody>
-              {readingSessions.slice(-5).reverse().map((session, index) => (
+              {readingSessions.slice(0, 5).map((session, index) => (
                 <TableRow key={index}>
                   <TableCell>{format(new Date(session.date), "dd/MM")}</TableCell>
                   <TableCell>
