@@ -32,7 +32,8 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
         .from('sessions')
         .select('*')
         .gte('date', lastFiveDays[4].toISOString())
-        .lte('date', today.toISOString());
+        .lte('date', today.toISOString())
+        .order('date', { ascending: false });
 
       if (fetchError) {
         console.error('Error fetching existing sessions:', fetchError);
@@ -79,6 +80,11 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
     });
   };
 
+  // Sort sessions by date in descending order (most recent first)
+  const sortedSessions = [...readingSessions].sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col items-center gap-4">
@@ -96,7 +102,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
         )}
       </div>
 
-      {readingSessions.length > 0 && (
+      {sortedSessions.length > 0 && (
         <div className="mt-6">
           <Table>
             <TableHeader>
@@ -106,7 +112,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
               </TableRow>
             </TableHeader>
             <TableBody>
-              {readingSessions.slice(0, 5).map((session, index) => (
+              {sortedSessions.slice(0, 5).map((session, index) => (
                 <TableRow key={index}>
                   <TableCell>{format(new Date(session.date), "dd/MM")}</TableCell>
                   <TableCell>
