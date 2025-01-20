@@ -18,6 +18,7 @@ export const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Initial data fetch
     fetchWeights();
     fetchWorkouts();
     fetchFastingSessions();
@@ -26,36 +27,49 @@ export const Index = () => {
     // Set up real-time subscriptions
     const weightsChannel = supabase
       .channel('weights-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'weights' }, () => {
-        console.log('Weights updated, fetching new data...');
-        fetchWeights();
-      })
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'weights' }, 
+        () => {
+          console.log('Weights updated, fetching new data...');
+          fetchWeights();
+        }
+      )
       .subscribe();
 
     const workoutsChannel = supabase
       .channel('workouts-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workouts' }, () => {
-        console.log('Workouts updated, fetching new data...');
-        fetchWorkouts();
-      })
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'workouts' }, 
+        () => {
+          console.log('Workouts updated, fetching new data...');
+          fetchWorkouts();
+        }
+      )
       .subscribe();
 
     const fastingChannel = supabase
       .channel('fasting-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'fasting_sessions' }, () => {
-        console.log('Fasting sessions updated, fetching new data...');
-        fetchFastingSessions();
-      })
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'fasting_sessions' }, 
+        () => {
+          console.log('Fasting sessions updated, fetching new data...');
+          fetchFastingSessions();
+        }
+      )
       .subscribe();
 
     const readingChannel = supabase
       .channel('reading-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reading_sessions' }, () => {
-        console.log('Reading sessions updated, fetching new data...');
-        fetchReadingSessions();
-      })
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'reading_sessions' }, 
+        () => {
+          console.log('Reading sessions updated, fetching new data...');
+          fetchReadingSessions();
+        }
+      )
       .subscribe();
 
+    // Cleanup subscriptions
     return () => {
       supabase.removeChannel(weightsChannel);
       supabase.removeChannel(workoutsChannel);
