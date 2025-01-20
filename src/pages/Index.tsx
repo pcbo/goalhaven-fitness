@@ -8,7 +8,7 @@ import { WeightSection } from "@/components/sections/WeightSection";
 import { WorkoutSection } from "@/components/sections/WorkoutSection";
 import { ReadingSection } from "@/components/sections/ReadingSection";
 
-const Index = () => {
+export const Index = () => {
   const [weightData, setWeightData] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [fastingSessions, setFastingSessions] = useState([]);
@@ -260,15 +260,11 @@ const Index = () => {
     }
   };
 
-  const handleReadingSubmit = async (pagesRead: number) => {
-    const goals = JSON.parse(localStorage.getItem('fitness-goals') || '{}');
-    const targetPages = goals.targetPagesPerDay || 5;
-    
+  const handleReadingSubmit = async () => {
     const { error } = await supabase
       .from('reading_sessions')
       .insert([{
-        pages_read: pagesRead,
-        completed: pagesRead >= targetPages
+        completed: true
       }]);
 
     if (error) {

@@ -3,7 +3,7 @@ import { ReadingTracker } from "@/components/ReadingTracker";
 
 interface ReadingSectionProps {
   readingSessions: any[];
-  onReadingSubmit: (pagesRead: number) => void;
+  onReadingSubmit: () => void;
   todayCompleted: boolean;
 }
 
