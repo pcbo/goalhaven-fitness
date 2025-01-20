@@ -2,6 +2,7 @@ import { GoalsForm } from "@/components/settings/GoalsForm";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Settings = () => {
   return (
@@ -14,7 +15,14 @@ export const Settings = () => {
         </Link>
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
-      <GoalsForm />
+      <Card>
+        <CardHeader>
+          <CardTitle>Fitness Goals</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <GoalsForm />
+        </CardContent>
+      </Card>
     </div>
   );
 };
