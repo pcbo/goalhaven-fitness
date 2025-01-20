@@ -83,7 +83,6 @@ export const Index = () => {
       )
       .subscribe();
 
-    // Cleanup subscriptions
     return () => {
       supabase.removeChannel(weightsChannel);
       supabase.removeChannel(workoutsChannel);
