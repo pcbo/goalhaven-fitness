@@ -13,7 +13,7 @@ export const WorkoutSection = ({ workouts, onWorkoutSubmit }: WorkoutSectionProp
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <section id="workout" className="py-4">
+    <section id="workout" className="py-3">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="w-full bg-background rounded-lg">
           <CollapsibleTrigger className="w-full px-6 py-4">

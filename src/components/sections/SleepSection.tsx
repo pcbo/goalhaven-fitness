@@ -13,7 +13,7 @@ export const SleepSection = ({ sleepSessions, onSleepSubmit }: SleepSectionProps
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <section id="sleep" className="py-4">
+    <section id="sleep" className="py-3">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="w-full bg-background rounded-lg">
           <CollapsibleTrigger className="w-full px-6 py-4">
