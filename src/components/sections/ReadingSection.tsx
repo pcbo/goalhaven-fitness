@@ -14,7 +14,7 @@ export const ReadingSection = ({ readingSessions, onReadingSubmit, todayComplete
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <section id="reading" className="py-3">
+    <section id="reading" className="py-2">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="w-full bg-background rounded-lg">
           <CollapsibleTrigger className="w-full px-6 py-4">
@@ -23,7 +23,7 @@ export const ReadingSection = ({ readingSessions, onReadingSubmit, todayComplete
               <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "transform rotate-180" : ""}`} />
             </div>
           </CollapsibleTrigger>
-          <CollapsibleContent className="px-6 pb-6">
+          <CollapsibleContent className="px-6 pb-4">
             <ReadingTracker
               onReadingSubmit={onReadingSubmit}
               todayCompleted={todayCompleted}
