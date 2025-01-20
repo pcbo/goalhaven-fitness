@@ -38,18 +38,12 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
 
-  // ... keep existing code (rest of the component implementation)
-
   return (
     <div className="bg-background rounded-lg">
-      <CardHeader className="px-0">
-        <CardTitle>Weight</CardTitle>
-      </CardHeader>
       <CardContent className="px-0">
         <WeightInput onWeightSubmit={onWeightSubmit} />
         {initialWeightData.length > 0 && (
           <div className="mt-4 space-y-4">
-            <h3 className="text-lg font-semibold">Latest Measurements</h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="rounded-lg border p-4">
                 <div className="flex items-center justify-between">

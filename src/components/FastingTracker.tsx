@@ -1,4 +1,4 @@
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import {
@@ -55,9 +55,6 @@ export const FastingTracker = ({
 
   return (
     <div className="w-full bg-background rounded-lg">
-      <CardHeader className="px-0">
-        <CardTitle>Fasting</CardTitle>
-      </CardHeader>
       <CardContent className="space-y-6 px-0">
         <div className="flex flex-col items-center justify-between gap-6">
           <div className="w-full">

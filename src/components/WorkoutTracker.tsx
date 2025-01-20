@@ -1,4 +1,4 @@
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { WorkoutInput } from "@/components/WorkoutInput";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import {
@@ -14,7 +14,7 @@ interface WorkoutData {
   date: string;
   pushups: number;
   situps: number;
-  plank_seconds: number; // Updated to match the database column name
+  plank_seconds: number;
 }
 
 interface WorkoutTrackerProps {
@@ -61,9 +61,6 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
 
   return (
     <div className="bg-background rounded-lg">
-      <CardHeader className="px-0">
-        <CardTitle>Workouts</CardTitle>
-      </CardHeader>
       <CardContent className="px-0">
         <WorkoutInput onWorkoutSubmit={onWorkoutSubmit} />
         {initialWorkouts.length > 0 && (
