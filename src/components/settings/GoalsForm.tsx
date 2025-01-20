@@ -12,7 +12,6 @@ interface Goals {
   targetPushups: number;
   targetSitups: number;
   targetPlankMinutes: number;
-  targetPagesPerDay: number;
 }
 
 export const GoalsForm = () => {
@@ -27,7 +26,6 @@ export const GoalsForm = () => {
       targetPushups: 0,
       targetSitups: 0,
       targetPlankMinutes: 0,
-      targetPagesPerDay: 5,
     };
   });
 
@@ -139,19 +137,6 @@ export const GoalsForm = () => {
               step="0.5"
             />
           </div>
-        </div>
-
-        <div>
-          <Label htmlFor="targetPages">Target Pages per Day</Label>
-          <Input
-            id="targetPages"
-            type="number"
-            value={goals.targetPagesPerDay}
-            onChange={(e) =>
-              setGoals({ ...goals, targetPagesPerDay: Number(e.target.value) })
-            }
-            min="0"
-          />
         </div>
       </div>
       <Button type="submit" className="w-full">Save Goals</Button>

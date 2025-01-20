@@ -14,7 +14,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ReadingTrackerProps {
-  onReadingSubmit: (pagesRead: number) => void;
+  onReadingSubmit: () => void;
   todayCompleted: boolean;
   readingSessions: any[];
 }
@@ -41,7 +41,6 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
             .from('reading_sessions')
             .insert([{
               date: date.toISOString(),
-              pages_read: 0,
               completed: false
             }]);
 
@@ -61,9 +60,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
   }, [readingSessions, toast]);
 
   const handleSubmit = () => {
-    const goals = JSON.parse(localStorage.getItem('fitness-goals') || '{}');
-    const targetPages = goals.targetPagesPerDay || 5;
-    onReadingSubmit(targetPages);
+    onReadingSubmit();
     toast({
       title: "Reading recorded",
       description: "Your reading has been recorded successfully",

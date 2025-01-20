@@ -44,7 +44,7 @@ export type Database = {
           completed?: boolean
           date?: string
           id?: string
-          pages_read: number
+          pages_read?: number
         }
         Update: {
           completed?: boolean
