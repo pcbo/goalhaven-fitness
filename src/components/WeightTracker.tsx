@@ -27,12 +27,18 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
   const getCurrentWeight = () => initialWeightData[initialWeightData.length - 1];
   const getPreviousWeight = () => initialWeightData[initialWeightData.length - 2];
 
-  const getComparisonIcon = (current: number, previous: number) => {
+  const getComparisonIcon = (current: number, previous: number, isMuscle: boolean = false) => {
     if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
-    if (current > previous) return <ArrowUp className="h-4 w-4 text-red-500" />;
-    if (current < previous) return <ArrowDown className="h-4 w-4 text-green-500" />;
+    if (current > previous) {
+      return <ArrowUp className={`h-4 w-4 ${isMuscle ? 'text-green-500' : 'text-red-500'}`} />;
+    }
+    if (current < previous) {
+      return <ArrowDown className={`h-4 w-4 ${isMuscle ? 'text-red-500' : 'text-green-500'}`} />;
+    }
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
+
+  // ... keep existing code (rest of the component implementation)
 
   return (
     <div className="bg-background rounded-lg">
@@ -82,7 +88,8 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   <span className="text-sm font-medium">Muscle</span>
                   {getComparisonIcon(
                     getCurrentWeight()?.muscle_percentage || 0,
-                    getPreviousWeight()?.muscle_percentage
+                    getPreviousWeight()?.muscle_percentage,
+                    true
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
@@ -102,8 +109,8 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Weight (kg)</TableHead>
-                    <TableHead>Fat</TableHead>
-                    <TableHead>Muscle</TableHead>
+                    <TableHead>Fat %</TableHead>
+                    <TableHead>Muscle %</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

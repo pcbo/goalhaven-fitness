@@ -37,10 +37,12 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
   const getCurrentWorkout = () => initialWorkouts[initialWorkouts.length - 1];
   const getPreviousWorkout = () => initialWorkouts[initialWorkouts.length - 2];
 
-  const formatPlankTime = (seconds: number) => {
+  const formatPlankTime = (seconds: number | null | undefined): string => {
     if (!seconds || isNaN(seconds)) return '0m';
+    
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
+    
     if (minutes === 0) {
       return `${remainingSeconds}s`;
     }
@@ -52,7 +54,6 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -108,7 +109,7 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {formatPlankTime(getCurrentWorkout()?.plankSeconds || 0)}
+                  {formatPlankTime(getCurrentWorkout()?.plankSeconds)}
                 </p>
                 {getPreviousWorkout() && (
                   <p className="mt-1 text-sm text-muted-foreground">

@@ -7,7 +7,7 @@ import { FastingSection } from "@/components/sections/FastingSection";
 import { WeightSection } from "@/components/sections/WeightSection";
 import { WorkoutSection } from "@/components/sections/WorkoutSection";
 import { ReadingSection } from "@/components/sections/ReadingSection";
-import { SettingsDialog } from "@/components/settings/SettingsDialog";
+import { Header } from "@/components/Header";
 
 const Index = () => {
   const [weightData, setWeightData] = useState([]);
@@ -24,6 +24,7 @@ const Index = () => {
     fetchFastingSessions();
     fetchReadingSessions();
 
+    // Set up real-time subscriptions
     const weightsChannel = supabase
       .channel('weights-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'weights' }, () => {
@@ -277,8 +278,8 @@ const Index = () => {
 
   return (
     <>
+      <Header />
       <main className="min-h-screen container max-w-3xl p-4 space-y-4 sm:space-y-6">
-        <SettingsDialog />
         <FastingSection
           fastingSessions={fastingSessions}
           onStartFasting={handleStartFasting}
