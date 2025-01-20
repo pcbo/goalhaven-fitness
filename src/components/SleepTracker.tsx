@@ -81,7 +81,9 @@ export const SleepTracker = ({ initialSessions, onSleepSubmit }: SleepTrackerPro
             />
           </div>
         </div>
-        <Button type="submit" className="w-full sm:w-auto h-12 px-6">Record Sleep</Button>
+        <div className="flex justify-center">
+          <Button type="submit" className="w-full sm:w-auto h-12 px-6">Record Sleep</Button>
+        </div>
       </form>
 
       {initialSessions.length > 0 && (
