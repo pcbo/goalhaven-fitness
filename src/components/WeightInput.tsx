@@ -104,7 +104,9 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           />
         </div>
       </div>
-      <Button type="submit" className="w-full sm:w-auto h-12 px-6">Record Measurements</Button>
+      <div className="flex justify-center">
+        <Button type="submit" className="w-full sm:w-auto h-12 px-6">Record Measurements</Button>
+      </div>
     </form>
   );
 };
