@@ -14,12 +14,12 @@ interface WorkoutData {
   date: string;
   pushups: number;
   situps: number;
-  plankSeconds: number;
+  plank_seconds: number; // Updated to match the database column name
 }
 
 interface WorkoutTrackerProps {
   initialWorkouts: WorkoutData[];
-  onWorkoutSubmit: (workout: Omit<WorkoutData, "date">) => void;
+  onWorkoutSubmit: (workout: { pushups: number; situps: number; plankSeconds: number }) => void;
 }
 
 export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrackerProps) => {
@@ -104,16 +104,16 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Plank</span>
                   {getComparisonIcon(
-                    getCurrentWorkout()?.plankSeconds || 0,
-                    getPreviousWorkout()?.plankSeconds
+                    getCurrentWorkout()?.plank_seconds || 0,
+                    getPreviousWorkout()?.plank_seconds
                   )}
                 </div>
                 <p className="mt-1 text-2xl font-bold">
-                  {formatPlankTime(getCurrentWorkout()?.plankSeconds)}
+                  {formatPlankTime(getCurrentWorkout()?.plank_seconds)}
                 </p>
                 {getPreviousWorkout() && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Previous: {formatPlankTime(getPreviousWorkout()?.plankSeconds)}
+                    Previous: {formatPlankTime(getPreviousWorkout()?.plank_seconds)}
                   </p>
                 )}
               </div>
@@ -135,7 +135,7 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
                       <TableCell>{formatDate(workout.date)}</TableCell>
                       <TableCell>{workout.pushups}</TableCell>
                       <TableCell>{workout.situps}</TableCell>
-                      <TableCell>{formatPlankTime(workout.plankSeconds)}</TableCell>
+                      <TableCell>{formatPlankTime(workout.plank_seconds)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
