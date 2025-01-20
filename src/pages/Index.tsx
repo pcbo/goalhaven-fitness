@@ -7,12 +7,14 @@ import { FastingSection } from "@/components/sections/FastingSection";
 import { WeightSection } from "@/components/sections/WeightSection";
 import { WorkoutSection } from "@/components/sections/WorkoutSection";
 import { ReadingSection } from "@/components/sections/ReadingSection";
+import { SleepSection } from "@/components/sections/SleepSection";
 
 export const Index = () => {
   const [weightData, setWeightData] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [fastingSessions, setFastingSessions] = useState([]);
   const [readingSessions, setReadingSessions] = useState([]);
+  const [sleepSessions, setSleepSessions] = useState([]);
   const [isCurrentlyFasting, setIsCurrentlyFasting] = useState(false);
   const [todayReadingCompleted, setTodayReadingCompleted] = useState(false);
   const { toast } = useToast();
@@ -23,6 +25,7 @@ export const Index = () => {
     fetchWorkouts();
     fetchFastingSessions();
     fetchReadingSessions();
+    fetchSleepSessions();
 
     // Set up real-time subscriptions
     const weightsChannel = supabase
@@ -69,12 +72,24 @@ export const Index = () => {
       )
       .subscribe();
 
+    const sleepChannel = supabase
+      .channel('sleep-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'sleep_sessions' }, 
+        () => {
+          console.log('Sleep sessions updated, fetching new data...');
+          fetchSleepSessions();
+        }
+      )
+      .subscribe();
+
     // Cleanup subscriptions
     return () => {
       supabase.removeChannel(weightsChannel);
       supabase.removeChannel(workoutsChannel);
       supabase.removeChannel(fastingChannel);
       supabase.removeChannel(readingChannel);
+      supabase.removeChannel(sleepChannel);
     };
   }, []);
 
@@ -167,6 +182,25 @@ export const Index = () => {
     });
     
     setTodayReadingCompleted(!!todaySession);
+  };
+
+  const fetchSleepSessions = async () => {
+    const { data, error } = await supabase
+      .from('sleep_sessions')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching sleep sessions:', error);
+      toast({
+        title: "Error fetching sleep sessions",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSleepSessions(data || []);
   };
 
   const handleWeightSubmit = async (weight: number, fatPercentage?: number, musclePercentage?: number) => {
@@ -292,6 +326,30 @@ export const Index = () => {
     }
   };
 
+  const handleSleepSubmit = async (quality: number, hours: number) => {
+    const { error } = await supabase
+      .from('sleep_sessions')
+      .insert([{
+        quality,
+        hours
+      }]);
+
+    if (error) {
+      console.error('Error recording sleep session:', error);
+      toast({
+        title: "Error saving sleep session",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Sleep recorded",
+      description: "Your sleep session has been recorded successfully",
+    });
+  };
+
   return (
     <>
       <main className="min-h-screen container max-w-3xl p-4 space-y-4 sm:space-y-6">
@@ -305,14 +363,18 @@ export const Index = () => {
           weightData={weightData}
           onWeightSubmit={handleWeightSubmit}
         />
-        <WorkoutSection
-          workouts={workouts}
-          onWorkoutSubmit={handleWorkoutSubmit}
-        />
         <ReadingSection
           readingSessions={readingSessions}
           onReadingSubmit={handleReadingSubmit}
           todayCompleted={todayReadingCompleted}
+        />
+        <SleepSection
+          sleepSessions={sleepSessions}
+          onSleepSubmit={handleSleepSubmit}
+        />
+        <WorkoutSection
+          workouts={workouts}
+          onWorkoutSubmit={handleWorkoutSubmit}
         />
       </main>
       <Footer />

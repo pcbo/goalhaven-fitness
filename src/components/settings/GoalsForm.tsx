@@ -13,6 +13,8 @@ interface Goals {
   targetSitups: number;
   targetPlankMinutes: number;
   targetReadingStreak: number;
+  targetSleepHours: number;
+  targetSleepQuality: number;
 }
 
 export const GoalsForm = () => {
@@ -28,6 +30,8 @@ export const GoalsForm = () => {
       targetSitups: 0,
       targetPlankMinutes: 0,
       targetReadingStreak: 0,
+      targetSleepHours: 8,
+      targetSleepQuality: 4,
     };
   });
 
@@ -152,6 +156,36 @@ export const GoalsForm = () => {
             }
             min="0"
           />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <Label htmlFor="targetSleepHours">Target Sleep Hours</Label>
+            <Input
+              id="targetSleepHours"
+              type="number"
+              value={goals.targetSleepHours}
+              onChange={(e) =>
+                setGoals({ ...goals, targetSleepHours: Number(e.target.value) })
+              }
+              min="0"
+              max="24"
+              step="0.5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="targetSleepQuality">Target Sleep Quality (1-5)</Label>
+            <Input
+              id="targetSleepQuality"
+              type="number"
+              value={goals.targetSleepQuality}
+              onChange={(e) =>
+                setGoals({ ...goals, targetSleepQuality: Number(e.target.value) })
+              }
+              min="1"
+              max="5"
+            />
+          </div>
         </div>
       </div>
       <Button type="submit" className="w-full">Save Goals</Button>
