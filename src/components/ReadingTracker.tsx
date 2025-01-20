@@ -9,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from "date-fns";
+import { format, subDays, startOfDay, isAfter, isBefore, isEqual } from "date-fns";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReadingTrackerProps {
   onReadingSubmit: (pagesRead: number) => void;
@@ -19,6 +21,44 @@ interface ReadingTrackerProps {
 
 export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSessions }: ReadingTrackerProps) => {
   const { toast } = useToast();
+
+  useEffect(() => {
+    const checkMissedDays = async () => {
+      const today = startOfDay(new Date());
+      const lastFiveDays = Array.from({ length: 5 }, (_, i) => startOfDay(subDays(today, i)));
+      
+      // Check each of the last 5 days
+      for (const date of lastFiveDays) {
+        const sessionExists = readingSessions.some(session => {
+          const sessionDate = startOfDay(new Date(session.date));
+          return isEqual(sessionDate, date);
+        });
+
+        // If no session exists for this day and it's not today, create a "missed" session
+        if (!sessionExists && isBefore(date, today)) {
+          console.log("Adding missed session for:", format(date, "yyyy-MM-dd"));
+          const { error } = await supabase
+            .from('reading_sessions')
+            .insert([{
+              date: date.toISOString(),
+              pages_read: 0,
+              completed: false
+            }]);
+
+          if (error) {
+            console.error('Error recording missed session:', error);
+            toast({
+              title: "Error recording missed session",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        }
+      }
+    };
+
+    checkMissedDays();
+  }, [readingSessions, toast]);
 
   const handleSubmit = () => {
     const goals = JSON.parse(localStorage.getItem('fitness-goals') || '{}');
