@@ -12,6 +12,7 @@ interface Goals {
   targetPushups: number;
   targetSitups: number;
   targetPlankMinutes: number;
+  targetReadingStreak: number;
 }
 
 export const GoalsForm = () => {
@@ -26,6 +27,7 @@ export const GoalsForm = () => {
       targetPushups: 0,
       targetSitups: 0,
       targetPlankMinutes: 0,
+      targetReadingStreak: 0,
     };
   });
 
@@ -137,6 +139,19 @@ export const GoalsForm = () => {
               step="0.5"
             />
           </div>
+        </div>
+
+        <div>
+          <Label htmlFor="targetReadingStreak">Target Reading Streak (days)</Label>
+          <Input
+            id="targetReadingStreak"
+            type="number"
+            value={goals.targetReadingStreak}
+            onChange={(e) =>
+              setGoals({ ...goals, targetReadingStreak: Number(e.target.value) })
+            }
+            min="0"
+          />
         </div>
       </div>
       <Button type="submit" className="w-full">Save Goals</Button>
