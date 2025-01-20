@@ -1,6 +1,6 @@
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowUp, ArrowDown, Minus, Timer } from "lucide-react";
+import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -92,7 +92,6 @@ export const FastingTracker = ({
             variant={isCurrentlyFasting ? "destructive" : "default"}
             className="w-full sm:w-auto h-12 px-6"
           >
-            <Timer className="mr-2 h-5 w-5" />
             {isCurrentlyFasting ? "End Fast" : "Start Fast"}
           </Button>
         </div>
