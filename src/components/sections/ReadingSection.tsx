@@ -1,5 +1,5 @@
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReadingTracker } from "@/components/ReadingTracker";
+import { CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
@@ -14,26 +14,22 @@ export const ReadingSection = ({ readingSessions, onReadingSubmit, todayComplete
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <section id="reading" className="py-8">
+    <section id="reading" className="py-4">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="w-full bg-background rounded-lg">
-          <CardHeader className="px-0">
-            <CollapsibleTrigger className="w-full">
-              <div className="flex items-center justify-between">
-                <CardTitle>Reading</CardTitle>
-                <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "transform rotate-180" : ""}`} />
-              </div>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CardContent className="px-0">
-            <CollapsibleContent>
-              <ReadingTracker
-                onReadingSubmit={onReadingSubmit}
-                todayCompleted={todayCompleted}
-                readingSessions={readingSessions}
-              />
-            </CollapsibleContent>
-          </CardContent>
+          <CollapsibleTrigger className="w-full px-6 py-4">
+            <div className="flex items-center justify-between">
+              <CardTitle>Reading</CardTitle>
+              <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "transform rotate-180" : ""}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-6 pb-6">
+            <ReadingTracker
+              onReadingSubmit={onReadingSubmit}
+              todayCompleted={todayCompleted}
+              readingSessions={readingSessions}
+            />
+          </CollapsibleContent>
         </div>
       </Collapsible>
     </section>
