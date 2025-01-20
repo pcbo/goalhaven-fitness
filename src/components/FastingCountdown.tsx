@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 
 interface FastingCountdownProps {
   startTime: string;
@@ -10,6 +9,7 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
   const [progress, setProgress] = useState(0);
   const [remainingTime, setRemainingTime] = useState<string>("");
   const [goalAchieved, setGoalAchieved] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState<string>("");
 
   useEffect(() => {
     const updateProgress = () => {
@@ -19,22 +19,26 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
       const targetMinutes = targetHours * 60;
       const currentProgress = Math.min((elapsedMinutes / targetMinutes) * 100, 100);
       
-      // Calculate remaining time
+      // Calculate remaining time before goal
       const remainingMinutes = Math.max(targetMinutes - elapsedMinutes, 0);
-      const hours = Math.floor(remainingMinutes / 60);
-      const minutes = Math.floor(remainingMinutes % 60);
-      setRemainingTime(`${hours}h ${minutes}m`);
+      const remainingHours = Math.floor(remainingMinutes / 60);
+      const remainingMins = Math.floor(remainingMinutes % 60);
+      setRemainingTime(`${remainingHours}h ${remainingMins}m`);
+      
+      // Calculate elapsed time (for after goal)
+      const elapsedHours = Math.floor(elapsedMinutes / 60);
+      const elapsedMins = Math.floor(elapsedMinutes % 60);
+      setElapsedTime(`${elapsedHours}h ${elapsedMins}m`);
       
       setProgress(currentProgress);
       setGoalAchieved(elapsedMinutes >= targetMinutes);
     };
 
     updateProgress();
-    const interval = setInterval(updateProgress, 1000); // Update every second for smoother countdown
+    const interval = setInterval(updateProgress, 1000);
     return () => clearInterval(interval);
   }, [startTime, targetHours]);
 
-  // Calculate the circle's circumference and the filled portion
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
   const filled = ((100 - progress) * circumference) / 100;
@@ -68,7 +72,7 @@ export const FastingCountdown = ({ startTime, targetHours = 16 }: FastingCountdo
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         {goalAchieved ? (
           <>
-            <div className="text-xl font-bold text-primary">Goal achieved!</div>
+            <div className="text-2xl font-bold text-primary">{elapsedTime}</div>
             <div className="text-xs text-muted-foreground">Keep going!</div>
           </>
         ) : (

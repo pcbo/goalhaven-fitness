@@ -110,7 +110,9 @@ export const FastingTracker = ({
               <TableBody>
                 {initialSessions.slice(-5).reverse().map((session) => (
                   <TableRow key={session.id}>
-                    <TableCell className="whitespace-nowrap">{formatDateTime(session.start_time)}</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {formatDateTime(session.start_time)}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap">
                       {session.end_time ? formatDateTime(session.end_time) : "Ongoing"}
                     </TableCell>
