@@ -37,10 +37,10 @@ export const SleepTracker = ({ initialSessions, onSleepSubmit }: SleepTrackerPro
 
   const getQualityText = (quality: number) => {
     switch (quality) {
-      case 1: return "Poor";
-      case 2: return "Fair";
-      case 3: return "Good";
-      case 4: return "Very Good";
+      case 1: return "Horrible";
+      case 2: return "Poor";
+      case 3: return "Neutral";
+      case 4: return "Good";
       case 5: return "Excellent";
       default: return "Unknown";
     }
@@ -67,10 +67,10 @@ export const SleepTracker = ({ initialSessions, onSleepSubmit }: SleepTrackerPro
                 <SelectValue placeholder="Select quality" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1 - Poor</SelectItem>
-                <SelectItem value="2">2 - Fair</SelectItem>
-                <SelectItem value="3">3 - Good</SelectItem>
-                <SelectItem value="4">4 - Very Good</SelectItem>
+                <SelectItem value="1">1 - Horrible</SelectItem>
+                <SelectItem value="2">2 - Poor</SelectItem>
+                <SelectItem value="3">3 - Neutral</SelectItem>
+                <SelectItem value="4">4 - Good</SelectItem>
                 <SelectItem value="5">5 - Excellent</SelectItem>
               </SelectContent>
             </Select>
