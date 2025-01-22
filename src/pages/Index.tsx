@@ -65,8 +65,9 @@ export const Index = () => {
       .channel('reading-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'sessions' }, 
-        () => {
-          console.log('Reading sessions updated, fetching new data...');
+        (payload) => {
+          console.log('Reading sessions updated, payload:', payload);
+          console.log('Fetching new reading data...');
           fetchReadingSessions();
         }
       )
@@ -153,6 +154,7 @@ export const Index = () => {
   };
 
   const fetchReadingSessions = async () => {
+    console.log('Fetching reading sessions...');
     const { data, error } = await supabase
       .from('sessions')
       .select('*')
@@ -168,6 +170,7 @@ export const Index = () => {
       return;
     }
 
+    console.log('Fetched reading sessions:', data);
     setReadingSessions(data || []);
     
     // Check if there's a completed session today
