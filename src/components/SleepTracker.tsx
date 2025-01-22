@@ -46,6 +46,13 @@ export const SleepTracker = ({ initialSessions, onSleepSubmit }: SleepTrackerPro
     }
   };
 
+  const formatHours = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.round((hours - wholeHours) * 60);
+    if (minutes === 0) return `${wholeHours}h`;
+    return `${wholeHours}h${minutes}m`;
+  };
+
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,7 +108,7 @@ export const SleepTracker = ({ initialSessions, onSleepSubmit }: SleepTrackerPro
                 <TableRow key={index}>
                   <TableCell>{format(new Date(session.date), "dd/MM/yyyy")}</TableCell>
                   <TableCell>{getQualityText(session.quality)}</TableCell>
-                  <TableCell>{session.hours}h</TableCell>
+                  <TableCell>{formatHours(session.hours)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
