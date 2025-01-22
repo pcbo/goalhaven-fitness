@@ -54,9 +54,8 @@ export const Index = () => {
       .channel('fasting-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'fasting_sessions' }, 
-        (payload) => {
-          console.log('Fasting sessions updated, payload:', payload);
-          console.log('Fetching new fasting data...');
+        () => {
+          console.log('Fasting sessions updated, fetching new data...');
           fetchFastingSessions();
         }
       )
@@ -66,9 +65,8 @@ export const Index = () => {
       .channel('reading-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'sessions' }, 
-        (payload) => {
-          console.log('Reading sessions updated, payload:', payload);
-          console.log('Fetching new reading data...');
+        () => {
+          console.log('Reading sessions updated, fetching new data...');
           fetchReadingSessions();
         }
       )
@@ -357,7 +355,7 @@ export const Index = () => {
 
   return (
     <>
-      <main className="min-h-screen container max-w-3xl p-4 space-y-4 sm:space-y-6">
+      <main className="min-h-screen container max-w-3xl p-4 space-y-4">
         <FastingSection
           fastingSessions={fastingSessions}
           onStartFasting={handleStartFasting}
