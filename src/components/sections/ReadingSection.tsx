@@ -14,7 +14,7 @@ export const ReadingSection = ({ readingSessions, onReadingSubmit, todayComplete
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <section id="reading" className="py-1">
+    <section id="reading" className="py-1 pb-6">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="w-full bg-background rounded-lg">
           <CollapsibleTrigger className="w-full px-6 py-2">

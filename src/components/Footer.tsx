@@ -1,6 +1,6 @@
 export const Footer = () => {
   return (
-    <footer className="py-1 text-center text-sm text-muted-foreground">
+    <footer className="py-6 text-center text-sm text-muted-foreground">
       A PCBO creation. All rights reserved.
     </footer>
   );
