@@ -11,7 +11,7 @@ interface ReadingSectionProps {
 }
 
 export const ReadingSection = ({ readingSessions, onReadingSubmit, todayCompleted }: ReadingSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <section id="reading" className="py-1">

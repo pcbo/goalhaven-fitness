@@ -10,7 +10,7 @@ interface SleepSectionProps {
 }
 
 export const SleepSection = ({ sleepSessions, onSleepSubmit }: SleepSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <section id="sleep" className="py-3">

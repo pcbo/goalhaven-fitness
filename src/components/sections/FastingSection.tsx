@@ -17,7 +17,7 @@ export const FastingSection = ({
   onEndFasting,
   isCurrentlyFasting,
 }: FastingSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <section id="fasting" className="py-3">

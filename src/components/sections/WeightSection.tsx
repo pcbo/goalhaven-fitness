@@ -10,7 +10,7 @@ interface WeightSectionProps {
 }
 
 export const WeightSection = ({ weightData, onWeightSubmit }: WeightSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <section id="weight" className="py-3">

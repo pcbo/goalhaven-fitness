@@ -10,7 +10,7 @@ interface WorkoutSectionProps {
 }
 
 export const WorkoutSection = ({ workouts, onWorkoutSubmit }: WorkoutSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <section id="workout" className="py-3">
