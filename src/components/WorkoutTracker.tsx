@@ -65,50 +65,50 @@ export const WorkoutTracker = ({ initialWorkouts, onWorkoutSubmit }: WorkoutTrac
         <WorkoutInput onWorkoutSubmit={onWorkoutSubmit} />
         {initialWorkouts.length > 0 && (
           <div className="mt-4 space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-lg border p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+              <div className="rounded-lg border p-2 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Push-ups</span>
+                  <span className="text-xs sm:text-sm font-medium">Push-ups</span>
                   {getComparisonIcon(
                     getCurrentWorkout()?.pushups || 0,
                     getPreviousWorkout()?.pushups
                   )}
                 </div>
-                <p className="mt-1 text-2xl font-bold">{getCurrentWorkout()?.pushups || 0}</p>
+                <p className="mt-1 text-lg sm:text-2xl font-bold truncate">{getCurrentWorkout()?.pushups || 0}</p>
                 {getPreviousWorkout() && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground truncate">
                     Previous: {getPreviousWorkout()?.pushups}
                   </p>
                 )}
               </div>
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border p-2 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Sit-ups</span>
+                  <span className="text-xs sm:text-sm font-medium">Sit-ups</span>
                   {getComparisonIcon(
                     getCurrentWorkout()?.situps || 0,
                     getPreviousWorkout()?.situps
                   )}
                 </div>
-                <p className="mt-1 text-2xl font-bold">{getCurrentWorkout()?.situps || 0}</p>
+                <p className="mt-1 text-lg sm:text-2xl font-bold truncate">{getCurrentWorkout()?.situps || 0}</p>
                 {getPreviousWorkout() && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground truncate">
                     Previous: {getPreviousWorkout()?.situps}
                   </p>
                 )}
               </div>
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border p-2 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Plank</span>
+                  <span className="text-xs sm:text-sm font-medium">Plank</span>
                   {getComparisonIcon(
                     getCurrentWorkout()?.plank_seconds || 0,
                     getPreviousWorkout()?.plank_seconds
                   )}
                 </div>
-                <p className="mt-1 text-2xl font-bold">
+                <p className="mt-1 text-lg sm:text-2xl font-bold truncate">
                   {formatPlankTime(getCurrentWorkout()?.plank_seconds)}
                 </p>
                 {getPreviousWorkout() && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground truncate">
                     Previous: {formatPlankTime(getPreviousWorkout()?.plank_seconds)}
                   </p>
                 )}
