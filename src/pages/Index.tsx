@@ -54,8 +54,9 @@ export const Index = () => {
       .channel('fasting-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'fasting_sessions' }, 
-        () => {
-          console.log('Fasting sessions updated, fetching new data...');
+        (payload) => {
+          console.log('Fasting sessions updated, payload:', payload);
+          console.log('Fetching new fasting data...');
           fetchFastingSessions();
         }
       )
@@ -133,6 +134,7 @@ export const Index = () => {
   };
 
   const fetchFastingSessions = async () => {
+    console.log('Fetching fasting sessions...');
     const { data, error } = await supabase
       .from('fasting_sessions')
       .select('*')
@@ -148,6 +150,7 @@ export const Index = () => {
       return;
     }
 
+    console.log('Fetched fasting sessions:', data);
     setFastingSessions(data);
     const lastSession = data[data.length - 1];
     setIsCurrentlyFasting(lastSession && !lastSession.end_time);
