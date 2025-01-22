@@ -44,53 +44,53 @@ export const WeightTracker = ({ initialWeightData, onWeightSubmit }: WeightTrack
         <WeightInput onWeightSubmit={onWeightSubmit} />
         {initialWeightData.length > 0 && (
           <div className="mt-4 space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-lg border p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+              <div className="rounded-lg border p-2 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Weight</span>
+                  <span className="text-xs sm:text-sm font-medium">Weight</span>
                   {getComparisonIcon(
                     getCurrentWeight()?.weight || 0,
                     getPreviousWeight()?.weight
                   )}
                 </div>
-                <p className="mt-1 text-2xl font-bold">{getCurrentWeight()?.weight || 0} kg</p>
+                <p className="mt-1 text-lg sm:text-2xl font-bold truncate">{getCurrentWeight()?.weight || 0} kg</p>
                 {getPreviousWeight() && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground truncate">
                     Previous: {getPreviousWeight()?.weight} kg
                   </p>
                 )}
               </div>
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border p-2 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Fat</span>
+                  <span className="text-xs sm:text-sm font-medium">Fat</span>
                   {getComparisonIcon(
                     getCurrentWeight()?.fat_percentage || 0,
                     getPreviousWeight()?.fat_percentage
                   )}
                 </div>
-                <p className="mt-1 text-2xl font-bold">
+                <p className="mt-1 text-lg sm:text-2xl font-bold truncate">
                   {getCurrentWeight()?.fat_percentage || 0}%
                 </p>
                 {getPreviousWeight()?.fat_percentage && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground truncate">
                     Previous: {getPreviousWeight()?.fat_percentage}%
                   </p>
                 )}
               </div>
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border p-2 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Muscle</span>
+                  <span className="text-xs sm:text-sm font-medium">Muscle</span>
                   {getComparisonIcon(
                     getCurrentWeight()?.muscle_percentage || 0,
                     getPreviousWeight()?.muscle_percentage,
                     true
                   )}
                 </div>
-                <p className="mt-1 text-2xl font-bold">
+                <p className="mt-1 text-lg sm:text-2xl font-bold truncate">
                   {getCurrentWeight()?.muscle_percentage || 0}%
                 </p>
                 {getPreviousWeight()?.muscle_percentage && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground truncate">
                     Previous: {getPreviousWeight()?.muscle_percentage}%
                   </p>
                 )}
