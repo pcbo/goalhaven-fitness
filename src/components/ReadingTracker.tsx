@@ -97,7 +97,7 @@ export const ReadingTracker = ({ onReadingSubmit, todayCompleted, readingSession
           </Button>
         ) : (
           <div className="text-center text-primary font-medium">
-            Today's reading completed
+            Today's reading done
           </div>
         )}
       </div>
