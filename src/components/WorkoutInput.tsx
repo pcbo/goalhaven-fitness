@@ -35,7 +35,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
     // Convert minutes to seconds before submitting
     const workoutData = {
       ...workout,
-      plankSeconds: workout.plankSeconds * 60,
+      plankSeconds: Math.round(workout.plankSeconds * 60),
     };
     onWorkoutSubmit(workoutData);
     setWorkout({ pushups: 0, situps: 0, plankSeconds: 0 });
@@ -91,7 +91,7 @@ export const WorkoutInput = ({ onWorkoutSubmit }: WorkoutInputProps) => {
             onChange={(e) =>
               setWorkout({
                 ...workout,
-                plankSeconds: parseInt(e.target.value) || 0,
+                plankSeconds: parseFloat(e.target.value) || 0,
               })
             }
             min="0"
