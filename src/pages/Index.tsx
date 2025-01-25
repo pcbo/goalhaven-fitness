@@ -27,6 +27,48 @@ export const Index = () => {
     fetchReadingSessions();
     fetchSleepSessions();
 
+    // End any ongoing fasting sessions that might have been caused by double-taps
+    const cleanupOngoingSessions = async () => {
+      const { data: ongoingSessions } = await supabase
+        .from('fasting_sessions')
+        .select('*')
+        .is('end_time', null);
+
+      if (ongoingSessions && ongoingSessions.length > 1) {
+        console.log('Found multiple ongoing sessions, cleaning up...');
+        for (const session of ongoingSessions.slice(1)) {
+          await supabase
+            .from('fasting_sessions')
+            .delete()
+            .eq('id', session.id);
+        }
+      }
+
+      // End the remaining session if it exists and is older than 24 hours
+      if (ongoingSessions && ongoingSessions.length > 0) {
+        const oldestSession = ongoingSessions[0];
+        const startTime = new Date(oldestSession.start_time);
+        const now = new Date();
+        const hoursDiff = (now.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+
+        if (hoursDiff > 24) {
+          console.log('Found stale session, ending it...');
+          const endTime = new Date();
+          const durationMinutes = Math.ceil((endTime.getTime() - startTime.getTime()) / (1000 * 60));
+
+          await supabase
+            .from('fasting_sessions')
+            .update({
+              end_time: endTime.toISOString(),
+              duration_minutes: durationMinutes,
+            })
+            .eq('id', oldestSession.id);
+        }
+      }
+    };
+
+    cleanupOngoingSessions();
+
     // Set up real-time subscriptions
     const weightsChannel = supabase
       .channel('weights-changes')

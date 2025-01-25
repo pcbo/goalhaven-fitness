@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { FastingCountdown } from "./FastingCountdown";
+import { useEffect, useState } from "react";
+import debounce from "lodash/debounce";
 
 interface FastingSession {
   id: string;
@@ -33,8 +35,37 @@ export const FastingTracker = ({
   onEndFasting,
   isCurrentlyFasting,
 }: FastingTrackerProps) => {
+  const [isProcessing, setIsProcessing] = useState(false);
   const currentSession = initialSessions[initialSessions.length - 1];
   const previousSession = initialSessions[initialSessions.length - 2];
+
+  // Debounced handlers to prevent double-taps
+  const debouncedStartFasting = debounce(async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await onStartFasting();
+    } finally {
+      setIsProcessing(false);
+    }
+  }, 1000, { leading: true, trailing: false });
+
+  const debouncedEndFasting = debounce(async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await onEndFasting();
+    } finally {
+      setIsProcessing(false);
+    }
+  }, 1000, { leading: true, trailing: false });
+
+  useEffect(() => {
+    return () => {
+      debouncedStartFasting.cancel();
+      debouncedEndFasting.cancel();
+    };
+  }, []);
 
   const getComparisonIcon = (current: number, previous: number) => {
     if (!previous) return <Minus className="h-4 w-4 text-gray-500" />;
@@ -85,9 +116,10 @@ export const FastingTracker = ({
             )}
           </div>
           <Button
-            onClick={isCurrentlyFasting ? onEndFasting : onStartFasting}
+            onClick={isCurrentlyFasting ? debouncedEndFasting : debouncedStartFasting}
             variant={isCurrentlyFasting ? "destructive" : "default"}
             className="w-full sm:w-auto h-12 px-6"
+            disabled={isProcessing}
           >
             {isCurrentlyFasting ? "End Fast" : "Start Fast"}
           </Button>
