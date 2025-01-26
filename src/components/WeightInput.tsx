@@ -61,16 +61,16 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
   const handleWithingsImport = async () => {
     try {
       setIsImporting(true);
-      console.log('Starting Withings import process...');
+      console.log('🚀 Starting Withings import process...');
       
       const { data, error } = await supabase.functions.invoke('withings-auth');
       
       if (error) {
-        console.error('Error invoking withings-auth:', error);
+        console.error('❌ Error invoking withings-auth:', error);
         throw error;
       }
 
-      console.log('Received auth URL:', data.url);
+      console.log('🔗 Received auth URL:', data.url);
 
       const width = 800;
       const height = 600;
@@ -79,59 +79,59 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
 
       // Create a function to handle the message event
       const handleMessage = async (event: MessageEvent) => {
-        console.log('Received message event:', event);
-        console.log('Event data:', typeof event.data, event.data);
+        console.log('📨 Received message event:', event);
+        console.log('📦 Event data:', typeof event.data, event.data);
         
         try {
           let token;
           if (typeof event.data === 'string') {
-            console.log('Parsing string message:', event.data);
+            console.log('🔄 Parsing string message:', event.data);
             try {
               const parsedData = JSON.parse(event.data);
               token = parsedData.token;
-              console.log('Successfully parsed token from string:', token);
+              console.log('✅ Successfully parsed token from string:', token);
             } catch (e) {
-              console.error('Failed to parse message string:', e);
+              console.error('❌ Failed to parse message string:', e);
               return;
             }
           } else if (event.data && event.data.token) {
             token = event.data.token;
-            console.log('Extracted token from object:', token);
+            console.log('🔑 Extracted token from object:', token);
           }
 
           if (!token) {
-            console.log('No token found in message');
+            console.log('⚠️ No token found in message');
             return;
           }
 
-          console.log('Invoking withings-measurements with token:', token);
+          console.log('📡 Invoking withings-measurements with token:', token);
           const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
             'withings-measurements',
             { body: { token } }
           );
 
           if (measurementError) {
-            console.error('Error fetching measurements:', measurementError);
+            console.error('❌ Error fetching measurements:', measurementError);
             throw measurementError;
           }
 
-          console.log('Received measurement data:', measurementData);
+          console.log('📊 Received measurement data:', measurementData);
 
           if (measurementData && measurementData.measurement) {
-            console.log('Processing measurement:', measurementData.measurement);
+            console.log('🔄 Processing measurement:', measurementData.measurement);
             const { weight, fat_percentage, muscle_percentage } = measurementData.measurement;
             
-            console.log('Setting form values:', { weight, fat_percentage, muscle_percentage });
+            console.log('📝 Setting form values:', { weight, fat_percentage, muscle_percentage });
             if (weight) {
-              console.log('Setting weight:', weight);
+              console.log('⚖️ Setting weight:', weight);
               setWeight(weight.toString());
             }
             if (fat_percentage) {
-              console.log('Setting fat percentage:', fat_percentage);
+              console.log('🏋️ Setting fat percentage:', fat_percentage);
               setFatPercentage(fat_percentage.toString());
             }
             if (muscle_percentage) {
-              console.log('Setting muscle percentage:', muscle_percentage);
+              console.log('💪 Setting muscle percentage:', muscle_percentage);
               setMusclePercentage(muscle_percentage.toString());
             }
             
@@ -141,11 +141,11 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             });
 
             if (popup && !popup.closed) {
-              console.log('Closing popup window');
+              console.log('🔒 Closing popup window');
               popup.close();
             }
           } else {
-            console.log('No measurement data found in response');
+            console.log('⚠️ No measurement data found in response');
             toast({
               title: "No measurements found",
               description: "No recent measurements were found in your Withings account",
@@ -153,7 +153,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             });
           }
         } catch (error) {
-          console.error('Error processing Withings data:', error);
+          console.error('❌ Error processing Withings data:', error);
           toast({
             title: "Error importing measurements",
             description: "Failed to import measurements from Withings",
@@ -168,7 +168,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       // Add the message event listener before opening the popup
       window.addEventListener('message', handleMessage);
       
-      console.log('Opening popup window...');
+      console.log('🔄 Opening popup window...');
       let popup = window.open(
         data.url,
         'Withings Authorization',
@@ -190,7 +190,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       }, 1000);
 
     } catch (error) {
-      console.error('Error starting Withings import:', error);
+      console.error('❌ Error starting Withings import:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to start Withings import",
