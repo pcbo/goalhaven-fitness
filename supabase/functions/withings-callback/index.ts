@@ -8,8 +8,11 @@ const redirectUri = 'https://stchvygpxhwqzlnlppka.supabase.co/functions/v1/withi
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Content-Security-Policy': "default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';",
-  'X-Frame-Options': 'SAMEORIGIN'
+  'Content-Security-Policy': "script-src 'unsafe-inline'; default-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'",
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'no-referrer',
+  'Content-Type': 'text/html',
 };
 
 serve(async (req) => {
@@ -31,58 +34,48 @@ serve(async (req) => {
 
   if (error) {
     console.error('❌ Error from Withings:', error);
-    return new Response(
-      `
+    return new Response(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Withings Authorization</title>
+          <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline'; default-src 'self' 'unsafe-inline'">
         </head>
         <body>
           <script>
-            if (window.opener) {
-              window.opener.postMessage({ error: "${error}" }, "*");
-              window.close();
+            try {
+              if (window.opener) {
+                window.opener.postMessage({ error: "${error}" }, "*");
+              }
+            } catch (e) {
+              console.error('Error posting message:', e);
             }
           </script>
         </body>
       </html>
-      `,
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'text/html',
-        } 
-      }
-    );
+    `, { headers: corsHeaders });
   }
 
   if (!code) {
     console.error('❌ No code provided in callback');
-    return new Response(
-      `
+    return new Response(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Withings Authorization</title>
+          <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline'; default-src 'self' 'unsafe-inline'">
         </head>
         <body>
           <script>
-            if (window.opener) {
-              window.opener.postMessage({ error: "No code provided" }, "*");
-              window.close();
+            try {
+              if (window.opener) {
+                window.opener.postMessage({ error: "No code provided" }, "*");
+              }
+            } catch (e) {
+              console.error('Error posting message:', e);
             }
           </script>
         </body>
       </html>
-      `,
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'text/html',
-        } 
-      }
-    );
+    `, { headers: corsHeaders });
   }
 
   try {
@@ -109,55 +102,45 @@ serve(async (req) => {
       throw new Error(tokenData.error || 'Failed to obtain token');
     }
     
-    return new Response(
-      `
+    return new Response(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Withings Authorization</title>
+          <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline'; default-src 'self' 'unsafe-inline'">
         </head>
         <body>
           <script>
-            if (window.opener) {
-              window.opener.postMessage({ token: "${tokenData.body.access_token}" }, "*");
-              window.close();
+            try {
+              if (window.opener) {
+                window.opener.postMessage({ token: "${tokenData.body.access_token}" }, "*");
+              }
+            } catch (e) {
+              console.error('Error posting message:', e);
             }
           </script>
         </body>
       </html>
-      `,
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'text/html',
-        } 
-      }
-    );
+    `, { headers: corsHeaders });
   } catch (error) {
     console.error('❌ Error in token exchange:', error);
-    return new Response(
-      `
+    return new Response(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Withings Authorization</title>
+          <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline'; default-src 'self' 'unsafe-inline'">
         </head>
         <body>
           <script>
-            if (window.opener) {
-              window.opener.postMessage({ error: "${error.message}" }, "*");
-              window.close();
+            try {
+              if (window.opener) {
+                window.opener.postMessage({ error: "${error.message}" }, "*");
+              }
+            } catch (e) {
+              console.error('Error posting message:', e);
             }
           </script>
         </body>
       </html>
-      `,
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'text/html',
-        } 
-      }
-    );
+    `, { headers: corsHeaders });
   }
 });
