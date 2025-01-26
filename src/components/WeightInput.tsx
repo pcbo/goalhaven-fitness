@@ -84,39 +84,42 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       // Create a function to handle the message event
       const handleMessage = async (event: MessageEvent) => {
         console.log('Received message:', event);
-        console.log('Message data:', event.data);
         
-        if (typeof event.data === 'string') {
-          try {
-            // Try to parse the message if it's a string
-            const parsedData = JSON.parse(event.data);
-            if (parsedData.token) {
-              await handleToken(parsedData.token);
-            }
-          } catch (e) {
-            console.log('Failed to parse message string:', e);
-          }
-        } else if (event.data.token) {
-          await handleToken(event.data.token);
-        }
-      };
-
-      const handleToken = async (token: string) => {
         try {
+          let token;
+          if (typeof event.data === 'string') {
+            try {
+              const parsedData = JSON.parse(event.data);
+              token = parsedData.token;
+            } catch (e) {
+              console.log('Failed to parse message string:', e);
+              return;
+            }
+          } else if (event.data && event.data.token) {
+            token = event.data.token;
+          }
+
+          if (!token) {
+            console.log('No token found in message');
+            return;
+          }
+
           console.log('Processing token:', token);
           const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
             'withings-measurements',
             { body: { token } }
           );
 
-          if (measurementError) throw measurementError;
+          if (measurementError) {
+            throw measurementError;
+          }
 
-          if (measurementData.measurement) {
-            const { weight, fat_percentage } = measurementData.measurement;
-            setWeight(weight.toString());
-            if (fat_percentage) {
-              setFatPercentage(fat_percentage.toString());
-            }
+          if (measurementData && measurementData.measurement) {
+            const { weight, fat_percentage, muscle_percentage } = measurementData.measurement;
+            if (weight) setWeight(weight.toString());
+            if (fat_percentage) setFatPercentage(fat_percentage.toString());
+            if (muscle_percentage) setMusclePercentage(muscle_percentage.toString());
+            
             toast({
               title: "Measurements imported",
               description: "Your Withings measurements have been filled in. Please review and submit.",
@@ -129,7 +132,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             });
           }
         } catch (error) {
-          console.error('Error fetching measurements:', error);
+          console.error('Error processing Withings data:', error);
           toast({
             title: "Error importing measurements",
             description: "Failed to import measurements from Withings",
@@ -137,7 +140,9 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           });
         } finally {
           window.removeEventListener('message', handleMessage);
-          popup.close();
+          if (popup && !popup.closed) {
+            popup.close();
+          }
           setIsImporting(false);
         }
       };
