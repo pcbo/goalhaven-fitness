@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Scale } from "lucide-react";
 
 interface WeightInputProps {
   onWeightSubmit: (weight: number, fatPercentage?: number, musclePercentage?: number) => void;
@@ -11,6 +13,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
   const [weight, setWeight] = useState("");
   const [fatPercentage, setFatPercentage] = useState("");
   const [musclePercentage, setMusclePercentage] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -54,6 +57,75 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       title: "Weight updated",
       description: "Your measurements have been recorded successfully",
     });
+  };
+
+  const handleWithingsImport = async () => {
+    try {
+      setIsImporting(true);
+      const { data, error } = await supabase.functions.invoke('withings-auth');
+      
+      if (error) throw error;
+      
+      // Open the authorization URL in a popup window
+      const popup = window.open(
+        data.url,
+        'Withings Authorization',
+        'width=800,height=600'
+      );
+
+      // Listen for the callback message
+      window.addEventListener('message', async (event) => {
+        if (event.data.token) {
+          try {
+            // Get the latest measurements using the access token
+            const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
+              'withings-measurements',
+              { body: { token: event.data.token } }
+            );
+
+            if (measurementError) throw measurementError;
+
+            if (measurementData.measurement) {
+              const { weight, fat_percentage } = measurementData.measurement;
+              onWeightSubmit(weight, fat_percentage);
+              toast({
+                title: "Weight imported",
+                description: "Your Withings measurements have been imported successfully",
+              });
+            } else {
+              toast({
+                title: "No measurements found",
+                description: "No recent measurements were found in your Withings account",
+                variant: "destructive",
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching measurements:', error);
+            toast({
+              title: "Error importing measurements",
+              description: "Failed to import measurements from Withings",
+              variant: "destructive",
+            });
+          }
+        } else if (event.data.error) {
+          toast({
+            title: "Authorization failed",
+            description: event.data.error,
+            variant: "destructive",
+          });
+        }
+        popup?.close();
+      });
+    } catch (error) {
+      console.error('Error starting Withings import:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start Withings import",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   return (
@@ -104,8 +176,18 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           />
         </div>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center gap-4">
         <Button type="submit" className="w-full sm:w-auto h-12 px-6">Record Measurements</Button>
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="w-full sm:w-auto h-12 px-6"
+          onClick={handleWithingsImport}
+          disabled={isImporting}
+        >
+          <Scale className="w-4 h-4 mr-2" />
+          {isImporting ? "Importing..." : "Import from Withings"}
+        </Button>
       </div>
     </form>
   );
