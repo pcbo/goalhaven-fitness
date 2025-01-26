@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
   const [fatPercentage, setFatPercentage] = useState("");
   const [musclePercentage, setMusclePercentage] = useState("");
   const [isImporting, setIsImporting] = useState(false);
+  const popupRef = useRef<Window | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -77,6 +78,26 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
 
+      // Store popup reference
+      popupRef.current = window.open(
+        data.url,
+        'Withings Authorization',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+
+      if (!popupRef.current) {
+        throw new Error('Popup blocked. Please enable popups for this site.');
+      }
+
+      // Set up interval to check if window is closed
+      const checkWindow = setInterval(() => {
+        if (popupRef.current && popupRef.current.closed) {
+          clearInterval(checkWindow);
+          setIsImporting(false);
+          window.removeEventListener('message', handleMessage);
+        }
+      }, 500);
+
       const handleMessage = async (event: MessageEvent) => {
         console.log('📨 Received message:', event);
         
@@ -85,10 +106,11 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           if (typeof event.data === 'string') {
             console.log('🔄 Parsing string message:', event.data);
             try {
+              // Try parsing as JSON first
               const parsedData = JSON.parse(event.data);
               token = parsedData.token;
             } catch (e) {
-              // If JSON.parse fails, the message might be in a different format
+              // If JSON.parse fails, try extracting from HTML-style message
               const match = event.data.match(/token: "([^"]+)"/);
               if (match) {
                 token = match[1];
@@ -149,24 +171,14 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         } finally {
           window.removeEventListener('message', handleMessage);
           setIsImporting(false);
-          if (popup && !popup.closed) {
-            popup.close();
+          if (popupRef.current && !popupRef.current.closed) {
+            popupRef.current.close();
           }
+          popupRef.current = null;
         }
       };
 
       window.addEventListener('message', handleMessage);
-      
-      const popup = window.open(
-        data.url,
-        'Withings Authorization',
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
-
-      if (!popup) {
-        window.removeEventListener('message', handleMessage);
-        throw new Error('Popup blocked. Please enable popups for this site.');
-      }
 
     } catch (error) {
       console.error('❌ Error starting Withings import:', error);
@@ -176,8 +188,21 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         variant: "destructive",
       });
       setIsImporting(false);
+      if (popupRef.current && !popupRef.current.closed) {
+        popupRef.current.close();
+      }
+      popupRef.current = null;
     }
   };
+
+  // Cleanup function to handle component unmount
+  useEffect(() => {
+    return () => {
+      if (popupRef.current && !popupRef.current.closed) {
+        popupRef.current.close();
+      }
+    };
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
