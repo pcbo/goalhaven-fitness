@@ -20,6 +20,7 @@ serve(async (req) => {
       throw new Error('No access token provided');
     }
 
+    console.log('Making request to Withings API...');
     const measureResponse = await fetch('https://wbsapi.withings.net/measure', {
       method: 'POST',
       headers: {
@@ -34,28 +35,37 @@ serve(async (req) => {
     });
 
     const data = await measureResponse.json();
-    console.log('Withings API response:', data);
+    console.log('Raw Withings API response:', JSON.stringify(data, null, 2));
     
     if (data.status !== 0) {
+      console.error('Withings API error:', data.error || 'Unknown error');
       throw new Error(data.error || 'Failed to fetch measurements');
     }
 
     // Process the measurements to get the latest weight and fat percentage
     let latestMeasurement = null;
     if (data.body.measuregrps && data.body.measuregrps.length > 0) {
+      console.log('Found measure groups:', data.body.measuregrps.length);
       const latest = data.body.measuregrps[0];
+      console.log('Processing latest measurements:', latest);
+
       const measures = latest.measures.reduce((acc: any, measure: any) => {
+        console.log('Processing measure:', measure);
         if (measure.type === 1) { // Weight
           acc.weight = measure.value * Math.pow(10, measure.unit);
+          console.log('Found weight:', acc.weight);
         } else if (measure.type === 8) { // Fat Ratio
           acc.fat_percentage = measure.value * Math.pow(10, measure.unit);
+          console.log('Found fat percentage:', acc.fat_percentage);
         } else if (measure.type === 6) { // Muscle Mass
-          acc.muscle_percentage = (measure.value * Math.pow(10, measure.unit) / acc.weight) * 100;
+          const muscleMass = measure.value * Math.pow(10, measure.unit);
+          acc.muscle_percentage = (muscleMass / acc.weight) * 100;
+          console.log('Found muscle mass:', muscleMass, 'calculated percentage:', acc.muscle_percentage);
         }
         return acc;
-      }, {});
+      }, { weight: 0 });
 
-      console.log('Processed measurements:', measures);
+      console.log('Final processed measurements:', measures);
 
       latestMeasurement = {
         weight: measures.weight,
@@ -63,14 +73,17 @@ serve(async (req) => {
         muscle_percentage: measures.muscle_percentage,
         date: new Date(latest.date * 1000).toISOString(),
       };
+    } else {
+      console.log('No measure groups found in response');
     }
 
+    console.log('Returning measurement data:', latestMeasurement);
     return new Response(
       JSON.stringify({ measurement: latestMeasurement }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error fetching Withings measurements:', error);
+    console.error('Error in withings-measurements function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

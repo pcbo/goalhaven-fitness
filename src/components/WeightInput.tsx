@@ -61,9 +61,16 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
   const handleWithingsImport = async () => {
     try {
       setIsImporting(true);
+      console.log('Starting Withings import process...');
+      
       const { data, error } = await supabase.functions.invoke('withings-auth');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error invoking withings-auth:', error);
+        throw error;
+      }
+
+      console.log('Received auth URL:', data.url);
 
       const width = 800;
       const height = 600;
@@ -73,22 +80,23 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       // Create a function to handle the message event
       const handleMessage = async (event: MessageEvent) => {
         console.log('Received message event:', event);
+        console.log('Event data:', typeof event.data, event.data);
         
         try {
           let token;
           if (typeof event.data === 'string') {
-            console.log('Received string message:', event.data);
+            console.log('Parsing string message:', event.data);
             try {
               const parsedData = JSON.parse(event.data);
               token = parsedData.token;
-              console.log('Parsed token from string:', token);
+              console.log('Successfully parsed token from string:', token);
             } catch (e) {
-              console.log('Failed to parse message string:', e);
+              console.error('Failed to parse message string:', e);
               return;
             }
           } else if (event.data && event.data.token) {
             token = event.data.token;
-            console.log('Received token from object:', token);
+            console.log('Extracted token from object:', token);
           }
 
           if (!token) {
@@ -96,7 +104,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             return;
           }
 
-          console.log('Processing token:', token);
+          console.log('Invoking withings-measurements with token:', token);
           const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
             'withings-measurements',
             { body: { token } }
@@ -113,10 +121,19 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             console.log('Processing measurement:', measurementData.measurement);
             const { weight, fat_percentage, muscle_percentage } = measurementData.measurement;
             
-            console.log('Setting values:', { weight, fat_percentage, muscle_percentage });
-            if (weight) setWeight(weight.toString());
-            if (fat_percentage) setFatPercentage(fat_percentage.toString());
-            if (muscle_percentage) setMusclePercentage(muscle_percentage.toString());
+            console.log('Setting form values:', { weight, fat_percentage, muscle_percentage });
+            if (weight) {
+              console.log('Setting weight:', weight);
+              setWeight(weight.toString());
+            }
+            if (fat_percentage) {
+              console.log('Setting fat percentage:', fat_percentage);
+              setFatPercentage(fat_percentage.toString());
+            }
+            if (muscle_percentage) {
+              console.log('Setting muscle percentage:', muscle_percentage);
+              setMusclePercentage(muscle_percentage.toString());
+            }
             
             toast({
               title: "Measurements imported",
@@ -124,6 +141,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             });
 
             if (popup && !popup.closed) {
+              console.log('Closing popup window');
               popup.close();
             }
           } else {
@@ -150,6 +168,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       // Add the message event listener before opening the popup
       window.addEventListener('message', handleMessage);
       
+      console.log('Opening popup window...');
       let popup = window.open(
         data.url,
         'Withings Authorization',
