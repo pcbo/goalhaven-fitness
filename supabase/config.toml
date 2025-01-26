@@ -1,1 +1,10 @@
 project_id = "stchvygpxhwqzlnlppka"
+
+[functions.withings-auth]
+verify_jwt = false
+
+[functions.withings-callback]
+verify_jwt = false
+
+[functions.withings-measurements]
+verify_jwt = false
