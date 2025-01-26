@@ -72,20 +72,23 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
 
       // Create a function to handle the message event
       const handleMessage = async (event: MessageEvent) => {
-        console.log('Received message:', event);
+        console.log('Received message event:', event);
         
         try {
           let token;
           if (typeof event.data === 'string') {
+            console.log('Received string message:', event.data);
             try {
               const parsedData = JSON.parse(event.data);
               token = parsedData.token;
+              console.log('Parsed token from string:', token);
             } catch (e) {
               console.log('Failed to parse message string:', e);
               return;
             }
           } else if (event.data && event.data.token) {
             token = event.data.token;
+            console.log('Received token from object:', token);
           }
 
           if (!token) {
@@ -100,13 +103,17 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           );
 
           if (measurementError) {
+            console.error('Error fetching measurements:', measurementError);
             throw measurementError;
           }
 
           console.log('Received measurement data:', measurementData);
 
           if (measurementData && measurementData.measurement) {
+            console.log('Processing measurement:', measurementData.measurement);
             const { weight, fat_percentage, muscle_percentage } = measurementData.measurement;
+            
+            console.log('Setting values:', { weight, fat_percentage, muscle_percentage });
             if (weight) setWeight(weight.toString());
             if (fat_percentage) setFatPercentage(fat_percentage.toString());
             if (muscle_percentage) setMusclePercentage(muscle_percentage.toString());
@@ -120,6 +127,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
               popup.close();
             }
           } else {
+            console.log('No measurement data found in response');
             toast({
               title: "No measurements found",
               description: "No recent measurements were found in your Withings account",

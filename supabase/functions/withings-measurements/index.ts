@@ -14,6 +14,7 @@ serve(async (req) => {
 
   try {
     const { token } = await req.json();
+    console.log('Received token in measurements function:', token);
 
     if (!token) {
       throw new Error('No access token provided');
@@ -27,12 +28,13 @@ serve(async (req) => {
       },
       body: new URLSearchParams({
         action: 'getmeas',
-        meastypes: '1,8', // 1 for weight, 8 for fat ratio
+        meastypes: '1,6,8', // 1 for weight, 6 for muscle mass, 8 for fat ratio
         lastupdate: Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000).toString(), // Last 24 hours
       }),
     });
 
     const data = await measureResponse.json();
+    console.log('Withings API response:', data);
     
     if (data.status !== 0) {
       throw new Error(data.error || 'Failed to fetch measurements');
@@ -47,13 +49,18 @@ serve(async (req) => {
           acc.weight = measure.value * Math.pow(10, measure.unit);
         } else if (measure.type === 8) { // Fat Ratio
           acc.fat_percentage = measure.value * Math.pow(10, measure.unit);
+        } else if (measure.type === 6) { // Muscle Mass
+          acc.muscle_percentage = (measure.value * Math.pow(10, measure.unit) / acc.weight) * 100;
         }
         return acc;
       }, {});
 
+      console.log('Processed measurements:', measures);
+
       latestMeasurement = {
         weight: measures.weight,
         fat_percentage: measures.fat_percentage,
+        muscle_percentage: measures.muscle_percentage,
         date: new Date(latest.date * 1000).toISOString(),
       };
     }
