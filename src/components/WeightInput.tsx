@@ -80,7 +80,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
 
       // Set up message handler before opening the popup
       const handleMessage = async (event: MessageEvent) => {
-        console.log('📨 Received message:', event);
+        console.log('📨 Received message:', event.data);
         
         try {
           let token;
@@ -90,14 +90,8 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
               const parsedData = JSON.parse(event.data);
               token = parsedData.token;
             } catch (e) {
-              const match = event.data.match(/token: "([^"]+)"/);
-              if (match) {
-                token = match[1];
-                console.log('✅ Extracted token from string:', token);
-              } else {
-                console.error('❌ Failed to extract token from message');
-                return;
-              }
+              console.error('❌ Failed to parse message as JSON:', e);
+              return;
             }
           } else if (event.data && event.data.token) {
             token = event.data.token;
@@ -113,7 +107,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
             'withings-measurements',
             { 
-              body: { token },
+              body: JSON.stringify({ token }),
               headers: {
                 'Content-Type': 'application/json'
               }
