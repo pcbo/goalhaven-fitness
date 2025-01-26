@@ -8,6 +8,8 @@ const redirectUri = 'https://stchvygpxhwqzlnlppka.supabase.co/functions/v1/withi
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Content-Security-Policy': "default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';",
+  'X-Frame-Options': 'SAMEORIGIN'
 };
 
 serve(async (req) => {
@@ -30,22 +32,61 @@ serve(async (req) => {
   if (error) {
     console.error('❌ Error from Withings:', error);
     return new Response(
-      `<html><body><script>window.opener.postMessage({ error: "${error}" }, "*");</script></body></html>`,
-      { headers: { 'Content-Type': 'text/html' } }
+      `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Withings Authorization</title>
+        </head>
+        <body>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ error: "${error}" }, "*");
+              window.close();
+            }
+          </script>
+        </body>
+      </html>
+      `,
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'text/html',
+        } 
+      }
     );
   }
 
   if (!code) {
     console.error('❌ No code provided in callback');
     return new Response(
-      `<html><body><script>window.opener.postMessage({ error: "No code provided" }, "*");</script></body></html>`,
-      { headers: { 'Content-Type': 'text/html' } }
+      `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Withings Authorization</title>
+        </head>
+        <body>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ error: "No code provided" }, "*");
+              window.close();
+            }
+          </script>
+        </body>
+      </html>
+      `,
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'text/html',
+        } 
+      }
     );
   }
 
   try {
     console.log('🔄 Attempting to exchange code for token');
-    console.log('🔗 Using hardcoded redirect URI:', redirectUri);
     
     const tokenResponse = await fetch('https://wbsapi.withings.net/v2/oauth2', {
       method: 'POST',
@@ -69,14 +110,54 @@ serve(async (req) => {
     }
     
     return new Response(
-      `<html><body><script>window.opener.postMessage({ token: "${tokenData.body.access_token}" }, "*");</script></body></html>`,
-      { headers: { 'Content-Type': 'text/html' } }
+      `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Withings Authorization</title>
+        </head>
+        <body>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ token: "${tokenData.body.access_token}" }, "*");
+              window.close();
+            }
+          </script>
+        </body>
+      </html>
+      `,
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'text/html',
+        } 
+      }
     );
   } catch (error) {
     console.error('❌ Error in token exchange:', error);
     return new Response(
-      `<html><body><script>window.opener.postMessage({ error: "${error.message}" }, "*");</script></body></html>`,
-      { headers: { 'Content-Type': 'text/html' } }
+      `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Withings Authorization</title>
+        </head>
+        <body>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ error: "${error.message}" }, "*");
+              window.close();
+            }
+          </script>
+        </body>
+      </html>
+      `,
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'text/html',
+        } 
+      }
     );
   }
 });
