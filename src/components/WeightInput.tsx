@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -64,16 +64,27 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       const { data, error } = await supabase.functions.invoke('withings-auth');
       
       if (error) throw error;
+
+      // Create a centered popup window
+      const width = 800;
+      const height = 600;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
       
-      // Open the authorization URL in a popup window
       const popup = window.open(
         data.url,
         'Withings Authorization',
-        'width=800,height=600'
+        `width=${width},height=${height},left=${left},top=${top},popup=1`
       );
 
-      // Listen for the callback message
-      window.addEventListener('message', async (event) => {
+      if (!popup) {
+        throw new Error('Popup blocked. Please enable popups for this site.');
+      }
+
+      // Create a function to handle the message event
+      const handleMessage = async (event: MessageEvent) => {
+        console.log('Received message:', event.data);
+        
         if (event.data.token) {
           try {
             // Get the latest measurements using the access token
@@ -109,6 +120,10 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
               description: "Failed to import measurements from Withings",
               variant: "destructive",
             });
+          } finally {
+            // Clean up
+            window.removeEventListener('message', handleMessage);
+            popup.close();
           }
         } else if (event.data.error) {
           toast({
@@ -116,14 +131,28 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             description: event.data.error,
             variant: "destructive",
           });
+          window.removeEventListener('message', handleMessage);
+          popup.close();
         }
-        popup?.close();
-      });
+      };
+
+      // Add the message event listener
+      window.addEventListener('message', handleMessage);
+
+      // Check if popup is closed
+      const checkPopup = setInterval(() => {
+        if (!popup || popup.closed) {
+          clearInterval(checkPopup);
+          window.removeEventListener('message', handleMessage);
+          setIsImporting(false);
+        }
+      }, 1000);
+
     } catch (error) {
       console.error('Error starting Withings import:', error);
       toast({
         title: "Error",
-        description: "Failed to start Withings import",
+        description: error instanceof Error ? error.message : "Failed to start Withings import",
         variant: "destructive",
       });
     } finally {
