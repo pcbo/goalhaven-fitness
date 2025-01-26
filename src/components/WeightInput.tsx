@@ -71,7 +71,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
       
-      const popup = window.open(
+      let popup: Window | null = window.open(
         data.url,
         'Withings Authorization',
         `width=${width},height=${height},left=${left},top=${top}`
@@ -147,15 +147,16 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         }
       };
 
-      // Add the message event listener
+      // Add the message event listener before opening the popup
       window.addEventListener('message', handleMessage);
 
-      // Check if popup is closed
+      // Check if popup is closed periodically
       const checkPopup = setInterval(() => {
         if (!popup || popup.closed) {
           clearInterval(checkPopup);
           window.removeEventListener('message', handleMessage);
           setIsImporting(false);
+          popup = null;
         }
       }, 1000);
 
