@@ -17,6 +17,7 @@ serve(async (req) => {
     console.log('🔑 Received token:', token);
 
     // First, get the user identifier using the token
+    console.log('📡 Making request to Withings user API...');
     const userResponse = await fetch('https://wbsapi.withings.net/v2/user', {
       method: 'POST',
       headers: {
@@ -36,6 +37,7 @@ serve(async (req) => {
     }
 
     // Now get the measurements
+    console.log('📡 Making request to Withings measure API...');
     const measureResponse = await fetch('https://wbsapi.withings.net/measure', {
       method: 'POST',
       headers: {
@@ -46,7 +48,7 @@ serve(async (req) => {
         action: 'getmeas',
         meastypes: '1,6,76', // Weight (1), Fat Mass (6), Muscle Mass (76)
         category: '1',
-        lastupdate: '0'
+        lastupdate: Math.floor(Date.now() / 1000 - 86400).toString() // Last 24 hours
       })
     });
 
@@ -85,9 +87,10 @@ serve(async (req) => {
       }
 
       latestMeasurement = measurement;
+      console.log('✅ Processed measurement:', latestMeasurement);
+    } else {
+      console.log('⚠️ No measurements found in response');
     }
-
-    console.log('✅ Processed measurement:', latestMeasurement);
 
     return new Response(
       JSON.stringify({ measurement: latestMeasurement }),
