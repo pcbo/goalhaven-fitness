@@ -78,26 +78,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
 
-      // Store popup reference
-      popupRef.current = window.open(
-        data.url,
-        'Withings Authorization',
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
-
-      if (!popupRef.current) {
-        throw new Error('Popup blocked. Please enable popups for this site.');
-      }
-
-      // Set up interval to check if window is closed
-      const checkWindow = setInterval(() => {
-        if (popupRef.current && popupRef.current.closed) {
-          clearInterval(checkWindow);
-          setIsImporting(false);
-          window.removeEventListener('message', handleMessage);
-        }
-      }, 500);
-
+      // Set up message handler before opening the popup
       const handleMessage = async (event: MessageEvent) => {
         console.log('📨 Received message:', event);
         
@@ -106,11 +87,9 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           if (typeof event.data === 'string') {
             console.log('🔄 Parsing string message:', event.data);
             try {
-              // Try parsing as JSON first
               const parsedData = JSON.parse(event.data);
               token = parsedData.token;
             } catch (e) {
-              // If JSON.parse fails, try extracting from HTML-style message
               const match = event.data.match(/token: "([^"]+)"/);
               if (match) {
                 token = match[1];
@@ -171,14 +150,31 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         } finally {
           window.removeEventListener('message', handleMessage);
           setIsImporting(false);
-          if (popupRef.current && !popupRef.current.closed) {
-            popupRef.current.close();
-          }
-          popupRef.current = null;
         }
       };
 
       window.addEventListener('message', handleMessage);
+
+      // Open popup after setting up message handler
+      popupRef.current = window.open(
+        data.url,
+        'Withings Authorization',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+
+      if (!popupRef.current) {
+        window.removeEventListener('message', handleMessage);
+        throw new Error('Popup blocked. Please enable popups for this site.');
+      }
+
+      // Set up interval to check if window is closed without receiving a message
+      const checkWindow = setInterval(() => {
+        if (popupRef.current?.closed) {
+          clearInterval(checkWindow);
+          window.removeEventListener('message', handleMessage);
+          setIsImporting(false);
+        }
+      }, 500);
 
     } catch (error) {
       console.error('❌ Error starting Withings import:', error);
@@ -188,14 +184,10 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         variant: "destructive",
       });
       setIsImporting(false);
-      if (popupRef.current && !popupRef.current.closed) {
-        popupRef.current.close();
-      }
-      popupRef.current = null;
     }
   };
 
-  // Cleanup function to handle component unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (popupRef.current && !popupRef.current.closed) {
