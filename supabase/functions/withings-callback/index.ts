@@ -3,7 +3,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const clientId = Deno.env.get('WITHINGS_CLIENT_ID')!;
 const clientSecret = Deno.env.get('WITHINGS_CLIENT_SECRET')!;
-const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/withings-callback`;
+const redirectUri = 'https://stchvygpxhwqzlnlppka.supabase.co/functions/v1/withings-callback';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +11,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -24,7 +23,8 @@ serve(async (req) => {
 
   console.log('🔍 URL Parameters:', {
     code: code ? 'present' : 'missing',
-    error: error || 'none'
+    error: error || 'none',
+    fullUrl: req.url
   });
 
   if (error) {
@@ -45,7 +45,7 @@ serve(async (req) => {
 
   try {
     console.log('🔄 Attempting to exchange code for token');
-    console.log('🔗 Using redirect URI:', redirectUri);
+    console.log('🔗 Using hardcoded redirect URI:', redirectUri);
     
     const tokenResponse = await fetch('https://wbsapi.withings.net/v2/oauth2', {
       method: 'POST',
