@@ -70,16 +70,6 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       const height = 600;
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
-      
-      let popup: Window | null = window.open(
-        data.url,
-        'Withings Authorization',
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
-
-      if (!popup) {
-        throw new Error('Popup blocked. Please enable popups for this site.');
-      }
 
       // Create a function to handle the message event
       const handleMessage = async (event: MessageEvent) => {
@@ -140,23 +130,30 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           });
         } finally {
           window.removeEventListener('message', handleMessage);
-          if (popup && !popup.closed) {
-            popup.close();
-          }
           setIsImporting(false);
         }
       };
 
       // Add the message event listener before opening the popup
       window.addEventListener('message', handleMessage);
+      
+      let popup = window.open(
+        data.url,
+        'Withings Authorization',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
 
-      // Check if popup is closed periodically
+      if (!popup) {
+        window.removeEventListener('message', handleMessage);
+        throw new Error('Popup blocked. Please enable popups for this site.');
+      }
+
+      // Keep reference to popup and check if it's closed
       const checkPopup = setInterval(() => {
         if (!popup || popup.closed) {
           clearInterval(checkPopup);
           window.removeEventListener('message', handleMessage);
           setIsImporting(false);
-          popup = null;
         }
       }, 1000);
 
