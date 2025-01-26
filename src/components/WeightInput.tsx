@@ -64,14 +64,14 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       setIsImporting(true);
       console.log('🚀 Starting Withings import process...');
       
-      const { data, error } = await supabase.functions.invoke('withings-auth');
+      const { data: authData, error: authError } = await supabase.functions.invoke('withings-auth');
       
-      if (error) {
-        console.error('❌ Error invoking withings-auth:', error);
-        throw error;
+      if (authError) {
+        console.error('❌ Error invoking withings-auth:', authError);
+        throw authError;
       }
 
-      console.log('🔗 Received auth URL:', data.url);
+      console.log('🔗 Received auth URL:', authData.url);
 
       const width = 800;
       const height = 600;
@@ -112,7 +112,12 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           console.log('📡 Invoking withings-measurements with token:', token);
           const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
             'withings-measurements',
-            { body: { token } }
+            { 
+              body: { token },
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
           );
 
           if (measurementError) {
@@ -133,6 +138,10 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
               title: "Measurements imported",
               description: "Your Withings measurements have been filled in. Please review and submit.",
             });
+
+            if (popupRef.current) {
+              popupRef.current.close();
+            }
           } else {
             toast({
               title: "No measurements found",
@@ -157,7 +166,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
 
       // Open popup after setting up message handler
       popupRef.current = window.open(
-        data.url,
+        authData.url,
         'Withings Authorization',
         `width=${width},height=${height},left=${left},top=${top}`
       );
@@ -166,15 +175,6 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         window.removeEventListener('message', handleMessage);
         throw new Error('Popup blocked. Please enable popups for this site.');
       }
-
-      // Set up interval to check if window is closed without receiving a message
-      const checkWindow = setInterval(() => {
-        if (popupRef.current?.closed) {
-          clearInterval(checkWindow);
-          window.removeEventListener('message', handleMessage);
-          setIsImporting(false);
-        }
-      }, 500);
 
     } catch (error) {
       console.error('❌ Error starting Withings import:', error);
