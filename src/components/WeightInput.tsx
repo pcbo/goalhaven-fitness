@@ -86,10 +86,14 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
 
             if (measurementData.measurement) {
               const { weight, fat_percentage } = measurementData.measurement;
-              onWeightSubmit(weight, fat_percentage);
+              // Instead of submitting directly, fill in the form fields
+              setWeight(weight.toString());
+              if (fat_percentage) {
+                setFatPercentage(fat_percentage.toString());
+              }
               toast({
-                title: "Weight imported",
-                description: "Your Withings measurements have been imported successfully",
+                title: "Measurements imported",
+                description: "Your Withings measurements have been filled in. Please review and submit.",
               });
             } else {
               toast({
