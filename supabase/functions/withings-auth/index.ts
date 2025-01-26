@@ -15,8 +15,13 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log('🔍 SUPABASE_URL:', Deno.env.get('SUPABASE_URL'));
+  console.log('🔗 Redirect URI:', redirectUri);
+
   const state = crypto.randomUUID();
   const authUrl = `https://account.withings.com/oauth2_user/authorize2?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user.metrics&state=${state}`;
+
+  console.log('🎯 Generated auth URL:', authUrl);
 
   return new Response(
     JSON.stringify({ url: authUrl }),
