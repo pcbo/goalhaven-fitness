@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Scale } from "lucide-react";
 
 interface WeightInputProps {
   onWeightSubmit: (weight: number, fatPercentage?: number, musclePercentage?: number) => void;
@@ -185,7 +184,6 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           onClick={handleWithingsImport}
           disabled={isImporting}
         >
-          <Scale className="w-4 h-4 mr-2" />
           {isImporting ? "Importing..." : "Import from Withings"}
         </Button>
       </div>
