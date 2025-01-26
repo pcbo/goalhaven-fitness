@@ -65,7 +65,6 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       
       if (error) throw error;
 
-      // Create a centered popup window
       const width = 800;
       const height = 600;
       const left = window.screen.width / 2 - width / 2;
@@ -104,6 +103,8 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             throw measurementError;
           }
 
+          console.log('Received measurement data:', measurementData);
+
           if (measurementData && measurementData.measurement) {
             const { weight, fat_percentage, muscle_percentage } = measurementData.measurement;
             if (weight) setWeight(weight.toString());
@@ -114,6 +115,10 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
               title: "Measurements imported",
               description: "Your Withings measurements have been filled in. Please review and submit.",
             });
+
+            if (popup && !popup.closed) {
+              popup.close();
+            }
           } else {
             toast({
               title: "No measurements found",
