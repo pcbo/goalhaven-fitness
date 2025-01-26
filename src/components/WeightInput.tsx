@@ -74,7 +74,7 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       const popup = window.open(
         data.url,
         'Withings Authorization',
-        `width=${width},height=${height},left=${left},top=${top},popup=1`
+        `width=${width},height=${height},left=${left},top=${top}`
       );
 
       if (!popup) {
@@ -83,56 +83,62 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
 
       // Create a function to handle the message event
       const handleMessage = async (event: MessageEvent) => {
-        console.log('Received message:', event.data);
+        console.log('Received message:', event);
+        console.log('Message data:', event.data);
         
-        if (event.data.token) {
+        if (typeof event.data === 'string') {
           try {
-            // Get the latest measurements using the access token
-            const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
-              'withings-measurements',
-              { body: { token: event.data.token } }
-            );
-
-            if (measurementError) throw measurementError;
-
-            if (measurementData.measurement) {
-              const { weight, fat_percentage } = measurementData.measurement;
-              // Instead of submitting directly, fill in the form fields
-              setWeight(weight.toString());
-              if (fat_percentage) {
-                setFatPercentage(fat_percentage.toString());
-              }
-              toast({
-                title: "Measurements imported",
-                description: "Your Withings measurements have been filled in. Please review and submit.",
-              });
-            } else {
-              toast({
-                title: "No measurements found",
-                description: "No recent measurements were found in your Withings account",
-                variant: "destructive",
-              });
+            // Try to parse the message if it's a string
+            const parsedData = JSON.parse(event.data);
+            if (parsedData.token) {
+              await handleToken(parsedData.token);
             }
-          } catch (error) {
-            console.error('Error fetching measurements:', error);
+          } catch (e) {
+            console.log('Failed to parse message string:', e);
+          }
+        } else if (event.data.token) {
+          await handleToken(event.data.token);
+        }
+      };
+
+      const handleToken = async (token: string) => {
+        try {
+          console.log('Processing token:', token);
+          const { data: measurementData, error: measurementError } = await supabase.functions.invoke(
+            'withings-measurements',
+            { body: { token } }
+          );
+
+          if (measurementError) throw measurementError;
+
+          if (measurementData.measurement) {
+            const { weight, fat_percentage } = measurementData.measurement;
+            setWeight(weight.toString());
+            if (fat_percentage) {
+              setFatPercentage(fat_percentage.toString());
+            }
             toast({
-              title: "Error importing measurements",
-              description: "Failed to import measurements from Withings",
+              title: "Measurements imported",
+              description: "Your Withings measurements have been filled in. Please review and submit.",
+            });
+          } else {
+            toast({
+              title: "No measurements found",
+              description: "No recent measurements were found in your Withings account",
               variant: "destructive",
             });
-          } finally {
-            // Clean up
-            window.removeEventListener('message', handleMessage);
-            popup.close();
           }
-        } else if (event.data.error) {
+        } catch (error) {
+          console.error('Error fetching measurements:', error);
           toast({
-            title: "Authorization failed",
-            description: event.data.error,
+            title: "Error importing measurements",
+            description: "Failed to import measurements from Withings",
             variant: "destructive",
           });
+        } finally {
           window.removeEventListener('message', handleMessage);
           popup.close();
+          setIsImporting(false);
         }
       };
 
@@ -155,7 +161,6 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         description: error instanceof Error ? error.message : "Failed to start Withings import",
         variant: "destructive",
       });
-    } finally {
       setIsImporting(false);
     }
   };
