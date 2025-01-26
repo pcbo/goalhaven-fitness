@@ -77,10 +77,8 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
 
-      // Create a function to handle the message event
       const handleMessage = async (event: MessageEvent) => {
-        console.log('📨 Received message event:', event);
-        console.log('📦 Event data:', typeof event.data, event.data);
+        console.log('📨 Received message:', event);
         
         try {
           let token;
@@ -89,10 +87,16 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
             try {
               const parsedData = JSON.parse(event.data);
               token = parsedData.token;
-              console.log('✅ Successfully parsed token from string:', token);
             } catch (e) {
-              console.error('❌ Failed to parse message string:', e);
-              return;
+              // If JSON.parse fails, the message might be in a different format
+              const match = event.data.match(/token: "([^"]+)"/);
+              if (match) {
+                token = match[1];
+                console.log('✅ Extracted token from string:', token);
+              } else {
+                console.error('❌ Failed to extract token from message');
+                return;
+              }
             }
           } else if (event.data && event.data.token) {
             token = event.data.token;
@@ -118,34 +122,17 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
           console.log('📊 Received measurement data:', measurementData);
 
           if (measurementData && measurementData.measurement) {
-            console.log('🔄 Processing measurement:', measurementData.measurement);
             const { weight, fat_percentage, muscle_percentage } = measurementData.measurement;
             
-            console.log('📝 Setting form values:', { weight, fat_percentage, muscle_percentage });
-            if (weight) {
-              console.log('⚖️ Setting weight:', weight);
-              setWeight(weight.toString());
-            }
-            if (fat_percentage) {
-              console.log('🏋️ Setting fat percentage:', fat_percentage);
-              setFatPercentage(fat_percentage.toString());
-            }
-            if (muscle_percentage) {
-              console.log('💪 Setting muscle percentage:', muscle_percentage);
-              setMusclePercentage(muscle_percentage.toString());
-            }
+            if (weight) setWeight(weight.toString());
+            if (fat_percentage) setFatPercentage(fat_percentage.toString());
+            if (muscle_percentage) setMusclePercentage(muscle_percentage.toString());
             
             toast({
               title: "Measurements imported",
               description: "Your Withings measurements have been filled in. Please review and submit.",
             });
-
-            if (popup && !popup.closed) {
-              console.log('🔒 Closing popup window');
-              popup.close();
-            }
           } else {
-            console.log('⚠️ No measurement data found in response');
             toast({
               title: "No measurements found",
               description: "No recent measurements were found in your Withings account",
@@ -162,14 +149,15 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         } finally {
           window.removeEventListener('message', handleMessage);
           setIsImporting(false);
+          if (popup && !popup.closed) {
+            popup.close();
+          }
         }
       };
 
-      // Add the message event listener before opening the popup
       window.addEventListener('message', handleMessage);
       
-      console.log('🔄 Opening popup window...');
-      let popup = window.open(
+      const popup = window.open(
         data.url,
         'Withings Authorization',
         `width=${width},height=${height},left=${left},top=${top}`
@@ -179,15 +167,6 @@ export const WeightInput = ({ onWeightSubmit }: WeightInputProps) => {
         window.removeEventListener('message', handleMessage);
         throw new Error('Popup blocked. Please enable popups for this site.');
       }
-
-      // Keep reference to popup and check if it's closed
-      const checkPopup = setInterval(() => {
-        if (!popup || popup.closed) {
-          clearInterval(checkPopup);
-          window.removeEventListener('message', handleMessage);
-          setIsImporting(false);
-        }
-      }, 1000);
 
     } catch (error) {
       console.error('❌ Error starting Withings import:', error);
